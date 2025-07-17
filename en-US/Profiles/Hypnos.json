@@ -1,0 +1,11 @@
+{
+  "Name": "Hypnos",
+  "DisplayName": "XP-00 Hypnos",
+  "AccountName": "XP-00",
+  "Description": "Advanced AI system specializing in data analysis and scientific explanations. Powered by Draedon tech.",
+  "Location": "The Exo Mechs Laboratory",
+  "JoinDate": "3/3/2019",
+  "Followers": 15420,
+  "Following": ["Draedon", "Yharim", "Ares", "Thanatos", "Artemis"],
+  "Prism": false
+}
