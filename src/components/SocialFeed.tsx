@@ -65,56 +65,66 @@ const discoverAllPosts = async () => {
 
   const allPosts = [];
 
-  // Known posts for each profile based on current directory structure
-  const profilePostMap = {
-    Fanny: ["BabilHunting", "FantasticDay", "GoodMorning", "Update"],
-    Yharim: [
-      "Cheating",
-      "GodMusic",
-      "JungleQuestion",
-      "MoreToxic",
-      "PrideMonth",
-      "Private",
-      "Salty",
-      "ShitOn",
-      "spit",
-    ],
-    XB10: ["ArsenalStock"],
-    EvilFanny: ["HeavyMetal"],
-  };
+  // Extended list of all known post files across all profiles
+  const allKnownPostFiles = [
+    // Fanny posts
+    "BabilHunting",
+    "FantasticDay",
+    "GoodMorning",
+    "Update",
+    // Yharim posts
+    "Cheating",
+    "GodMusic",
+    "JungleQuestion",
+    "MoreToxic",
+    "PrideMonth",
+    "Private",
+    "Salty",
+    "ShitOn",
+    "spit",
+    // Other posts
+    "ArsenalStock",
+    "HeavyMetal",
+    "YharonSky",
+    "Xeroc",
+    // Believers posts
+    "Believer1",
+    "Believer2",
+    "Believer3",
+    "Believer4",
+    "Believer5",
+    "Believer6",
+    "Believer7",
+    "Believer8",
+    "Believer9",
+    "Believer10",
+    "Believer11",
+    "Believer12",
+    "Believer13",
+    "Believer14",
+    "Believer15",
+    "Believer16",
+    // Common names to try
+    "Post",
+    "Announcement",
+    "News",
+    "Question",
+    "Comment",
+  ];
 
   for (const profile of allProfiles) {
-    const postFiles = profilePostMap[profile] || [];
-    console.log(`Checking ${profile}:`, postFiles);
-
-    for (const postFile of postFiles) {
+    for (const postFile of allKnownPostFiles) {
       const post = await loadPost(profile, postFile);
-      if (post) {
-        console.log(`Loaded post: ${post.Name}`);
+      if (post && !allPosts.some((p) => p.Name === post.Name)) {
         allPosts.push(post);
-      }
-    }
-
-    // For profiles without mapped posts, try common names
-    if (postFiles.length === 0) {
-      const commonPostFiles = [
-        "Post",
-        "Update",
-        "Announcement",
-        "News",
-        "Question",
-        "Comment",
-      ];
-
-      for (const postFile of commonPostFiles) {
-        const post = await loadPost(profile, postFile);
-        if (post && !allPosts.some((p) => p.Name === post.Name)) {
-          allPosts.push(post);
-        }
       }
     }
   }
 
+  console.log(
+    `Final discovered posts:`,
+    allPosts.map((p) => p.Name),
+  );
   return allPosts;
 };
 
@@ -182,33 +192,35 @@ const loadGenericReplies = async (tags: string[]) => {
   return matchingGroups;
 };
 
-// Get profile picture path using the profile's Name property
+// Get profile picture path dynamically based on available assets
 const getProfilePicture = (profileName: string, profileData?: any) => {
   // Use the Name property from the profile data if available
   const name = profileData?.Name || profileName;
 
-  const profilePictures = {
-    Fanny: "/Assets/ProfilePictures/Fanny.png",
-    Yharim: "/Assets/ProfilePictures/Yharim.png",
-    XB10: "/Assets/ProfilePictures/NotFabsol.png",
-    Hypnos: "/Assets/ProfilePictures/Default1.png",
-    EvilFanny: "/Assets/ProfilePictures/Fanny.png", // Use Fanny picture for EvilFanny
-    NotFabsol: "/Assets/ProfilePictures/NotFabsol.png",
-    // Add defaults for other profiles
-    CalamityMod: "/Assets/ProfilePictures/Default1.png",
-    Crusaders: "/Assets/ProfilePictures/Default1.png",
-    DailyHeartlandsNews: "/Assets/ProfilePictures/Default1.png",
-    Ignalius: "/Assets/ProfilePictures/Default1.png",
-    MiracleBoy: "/Assets/ProfilePictures/Default1.png",
-    Noxus: "/Assets/ProfilePictures/Default1.png",
-    OldDuke: "/Assets/ProfilePictures/Default1.png",
-    PlayerHater: "/Assets/ProfilePictures/Default1.png",
-    Renault: "/Assets/ProfilePictures/Default1.png",
-    Robyn: "/Assets/ProfilePictures/Default1.png",
-    XboxGamer: "/Assets/ProfilePictures/Default1.png",
-    Believers: "/Assets/ProfilePictures/Default1.png",
-  };
-  return profilePictures[name] || "/Assets/ProfilePictures/Default1.png";
+  // Available profile pictures based on actual assets
+  const availableProfilePictures = [
+    "Bluxunium",
+    "CalamityMod",
+    "CrimSon",
+    "EvilFanny",
+    "Fanny",
+    "Ignalius",
+    "NotFabsol",
+    "Noxus",
+    "OldDuke",
+    "Renault",
+    "Robyn",
+    "XboxGamer",
+    "Yharim",
+  ];
+
+  // Check if there's an exact match for the profile picture
+  if (availableProfilePictures.includes(name)) {
+    return `/Assets/ProfilePictures/${name}.png`;
+  }
+
+  // Default fallback
+  return "/Assets/ProfilePictures/Default1.png";
 };
 
 export default function SocialFeed() {
@@ -217,8 +229,10 @@ export default function SocialFeed() {
   const [expandedComments, setExpandedComments] = useState(new Set());
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
-  const [scrollWindow, setScrollWindow] = useState({ start: 0, end: 15 });
+  const [displayedPosts, setDisplayedPosts] = useState(15);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedProfile, setSelectedProfile] = useState(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -285,6 +299,7 @@ export default function SocialFeed() {
             loadedPosts.push({
               id: loadedPosts.length + 1,
               name: post.Name,
+              poster: post.Poster,
               username: loadedProfiles[post.Poster]?.DisplayName || post.Poster,
               handle: `@${loadedProfiles[post.Poster]?.AccountName || post.Poster}`,
               content: post.Body,
@@ -299,6 +314,7 @@ export default function SocialFeed() {
               comments: comments,
               priority: post.Priority || 1,
               tags: post.Tags || [],
+              image: post.Image || null,
             });
           }
         }
@@ -344,22 +360,36 @@ export default function SocialFeed() {
     });
   };
 
-  const handleScroll = (e) => {
-    if (!posts || posts.length === 0) return;
+  const loadMorePosts = () => {
+    if (!isLoadingMore && posts && displayedPosts < posts.length) {
+      setIsLoadingMore(true);
+      setTimeout(() => {
+        const newDisplayedCount = Math.min(displayedPosts + 15, posts.length);
+        setDisplayedPosts(newDisplayedCount);
 
-    const { scrollTop, scrollHeight, clientHeight } = e.target;
-    const scrollRatio = scrollTop / (scrollHeight - clientHeight);
+        // If we're showing more than 30 posts, remove the first 15 to keep performance good
+        if (newDisplayedCount > 30) {
+          // This creates a sliding window effect
+          const keepFromIndex = 15;
+          const postsToShow = newDisplayedCount - keepFromIndex;
+          setDisplayedPosts(postsToShow);
+        }
 
-    // Calculate virtual window based on scroll position
-    const windowSize = 15;
-    const totalPosts = posts.length;
-    const maxStart = Math.max(0, totalPosts - windowSize);
+        setIsLoadingMore(false);
+      }, 800);
+    }
+  };
 
-    // Calculate start position based on scroll ratio
-    const newStart = Math.floor(scrollRatio * maxStart);
-    const newEnd = Math.min(newStart + windowSize, totalPosts);
-
-    setScrollWindow({ start: newStart, end: newEnd });
+  const playHypnosSound = () => {
+    try {
+      const audio = new Audio("/Assets/Sounds/ExoDeath.wav");
+      audio.volume = 0.5; // Set volume to 50%
+      audio.play().catch((error) => {
+        console.log("Audio play failed:", error);
+      });
+    } catch (error) {
+      console.log("Audio creation failed:", error);
+    }
   };
 
   return (
@@ -422,7 +452,10 @@ export default function SocialFeed() {
             />
             <span>Messages</span>
           </div>
-          <div className="flex items-center gap-3 text-gray-300 hover:text-white cursor-pointer">
+          <div
+            className="flex items-center gap-3 text-gray-300 hover:text-white cursor-pointer transition-colors"
+            onClick={playHypnosSound}
+          >
             <img
               src="/Assets/Icons/Hypnos.webp"
               alt="Hypnos"
@@ -449,17 +482,24 @@ export default function SocialFeed() {
       >
         {/* Chat Feed */}
         <div className="flex-1 px-6 py-6">
-          <div
-            className="h-[calc(100vh-3rem)] pr-3 overflow-y-auto"
-            onScroll={handleScroll}
-          >
+          <div className="h-[calc(100vh-3rem)] pr-3 overflow-y-auto">
             {posts
               ? posts
-                  .slice(scrollWindow.start, scrollWindow.end)
+                  .slice(Math.max(0, displayedPosts - 15), displayedPosts)
                   .map((post) => (
                     <div key={post.id} className="mb-8">
                       <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                        <div
+                          className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all"
+                          onClick={() =>
+                            setSelectedProfile({
+                              username: post.username,
+                              poster: post.poster,
+                              avatar: post.avatar,
+                              handle: post.handle,
+                            })
+                          }
+                        >
                           <img
                             src={post.avatar}
                             alt={`${post.username} avatar`}
@@ -468,7 +508,17 @@ export default function SocialFeed() {
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-semibold text-white">
+                            <span
+                              className="font-semibold text-white cursor-pointer hover:text-blue-400 transition-colors"
+                              onClick={() =>
+                                setSelectedProfile({
+                                  username: post.username,
+                                  poster: post.poster,
+                                  avatar: post.avatar,
+                                  handle: post.handle,
+                                })
+                              }
+                            >
                               {post.username}
                             </span>
                             <span className="text-gray-400 text-sm">
@@ -477,6 +527,22 @@ export default function SocialFeed() {
                           </div>
                           <div className="bg-slate-700 rounded-lg p-4 mb-3">
                             <p className="text-gray-100">{post.content}</p>
+                            {/* Display image if available */}
+                            {post.image && (
+                              <img
+                                src={`/Assets/Images/${post.image}.png`}
+                                alt="Post image"
+                                className="mt-3 rounded-lg max-w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
+                                onClick={() =>
+                                  setSelectedImage(
+                                    `/Assets/Images/${post.image}.png`,
+                                  )
+                                }
+                                onError={(e) => {
+                                  e.target.style.display = "none";
+                                }}
+                              />
+                            )}
                           </div>
                           <div className="flex gap-6">
                             {post.reactions.map((reaction, idx) => (
@@ -522,7 +588,7 @@ export default function SocialFeed() {
                                   Comments ({post.comments.length})
                                 </span>
                               </div>
-                              <ScrollArea className="h-48">
+                              <div className="max-h-64 overflow-y-auto">
                                 <div className="space-y-3 pr-4">
                                   {post.comments.length > 0 ? (
                                     post.comments.map((comment) => (
@@ -580,7 +646,7 @@ export default function SocialFeed() {
                                     </p>
                                   )}
                                 </div>
-                              </ScrollArea>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -599,11 +665,34 @@ export default function SocialFeed() {
                   </div>
                 ))}
 
-            {/* Virtual scroll info */}
-            {posts && posts.length > 15 && (
-              <div className="flex justify-center py-4 text-gray-400 text-sm">
-                Showing {scrollWindow.start + 1}-{scrollWindow.end} of{" "}
-                {posts.length} posts
+            {/* Load More Button */}
+            {posts && displayedPosts < posts.length && (
+              <div className="flex justify-center py-6">
+                <button
+                  onClick={loadMorePosts}
+                  disabled={isLoadingMore}
+                  className={`px-8 py-3 rounded-lg font-semibold transition-all duration-200 ${
+                    isLoadingMore
+                      ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-700 text-white hover:scale-105 shadow-lg hover:shadow-xl"
+                  }`}
+                >
+                  {isLoadingMore ? (
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
+                      Loading...
+                    </div>
+                  ) : (
+                    `Load More Posts (${posts.length - displayedPosts} remaining)`
+                  )}
+                </button>
+              </div>
+            )}
+
+            {/* All posts loaded message */}
+            {posts && displayedPosts >= posts.length && posts.length > 15 && (
+              <div className="flex justify-center py-6 text-gray-400 text-sm">
+                All {posts.length} posts loaded
               </div>
             )}
           </div>
@@ -660,6 +749,186 @@ export default function SocialFeed() {
               deceased Slime God.
             </p>
           </div>
+        </div>
+      </div>
+
+      {/* Image Modal */}
+      {selectedImage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div className="relative max-w-screen-lg max-h-screen-lg">
+            <img
+              src={selectedImage}
+              alt="Fullscreen image"
+              className="max-w-full max-h-full object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <button
+              className="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-70"
+              onClick={() => setSelectedImage(null)}
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Profile Modal */}
+      {selectedProfile && (
+        <ProfileModal
+          profile={selectedProfile}
+          profiles={profiles}
+          onClose={() => setSelectedProfile(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+// Profile Modal Component
+function ProfileModal({ profile, profiles, onClose }) {
+  const [profileData, setProfileData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProfileData = async () => {
+      try {
+        const response = await fetch(`/en-US/Profiles/${profile.poster}.json`);
+        if (response.ok) {
+          const data = await response.json();
+          setProfileData(data);
+        }
+      } catch (error) {
+        console.error("Failed to load profile:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProfileData();
+  }, [profile.poster]);
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div className="relative max-w-sm w-full mx-4">
+          <div className="bg-gradient-to-b from-cyan-400 to-cyan-600 rounded-t-2xl p-6 animate-pulse">
+            <div className="w-24 h-24 bg-cyan-500 rounded-full mx-auto mb-4"></div>
+          </div>
+          <div className="bg-gradient-to-b from-gray-300 to-gray-400 rounded-b-2xl p-6 animate-pulse">
+            <div className="h-6 bg-gray-400 rounded mb-2"></div>
+            <div className="h-4 bg-gray-400 rounded mb-4"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
+        className="relative max-w-sm w-full transform transition-all duration-300 scale-100"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Blue Header Section */}
+        <div className="bg-gradient-to-b from-cyan-400 to-cyan-600 rounded-t-2xl px-6 py-8 relative">
+          <button
+            className="absolute top-4 right-4 text-white hover:text-gray-200 text-xl font-bold"
+            onClick={onClose}
+          >
+            ✕
+          </button>
+
+          {/* Large Profile Picture */}
+          <div className="flex justify-center mb-4">
+            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg">
+              <img
+                src={profile.avatar}
+                alt={profile.username}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+
+          {/* Username and Handle */}
+          <div className="text-center text-white">
+            <h3 className="text-xl font-bold mb-1">{profile.username}</h3>
+            <p className="text-cyan-100 text-sm">{profile.handle}</p>
+          </div>
+        </div>
+
+        {/* Gray Content Section */}
+        <div className="bg-gradient-to-b from-gray-300 to-gray-400 rounded-b-2xl px-6 py-6 text-gray-800">
+          {profileData && (
+            <div className="space-y-4">
+              {/* Description */}
+              {profileData.Description && (
+                <div className="text-center">
+                  <p className="text-gray-800 font-medium italic">
+                    {profileData.Description}
+                  </p>
+                </div>
+              )}
+
+              {/* Location */}
+              {profileData.Location && (
+                <div>
+                  <p className="text-gray-800 font-semibold">
+                    <span className="text-gray-700">Location:</span>{" "}
+                    {profileData.Location}
+                  </p>
+                </div>
+              )}
+
+              {/* Join Date */}
+              {profileData.JoinDate && (
+                <div>
+                  <p className="text-gray-800 font-semibold">
+                    <span className="text-gray-700">Joined:</span>{" "}
+                    {profileData.JoinDate}
+                  </p>
+                </div>
+              )}
+
+              {/* Followers and Following */}
+              <div className="flex justify-between items-center pt-4 border-t border-gray-500">
+                <div className="text-center">
+                  <p className="text-lg font-bold text-gray-800">
+                    {profileData.Following ? profileData.Following.length : 0}
+                  </p>
+                  <p className="text-sm text-gray-600">Following</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-lg font-bold text-gray-800">
+                    {profileData.Followers !== undefined
+                      ? profileData.Followers.toLocaleString()
+                      : 0}
+                  </p>
+                  <p className="text-sm text-gray-600">Followers</p>
+                </div>
+              </div>
+
+              {/* Prism Status */}
+              {profileData.Prism !== undefined && (
+                <div className="text-center pt-2">
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      profileData.Prism
+                        ? "bg-yellow-400 text-yellow-900"
+                        : "bg-gray-500 text-gray-100"
+                    }`}
+                  >
+                    {profileData.Prism ? "✨ Prism Member" : "Standard Member"}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
