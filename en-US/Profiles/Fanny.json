@@ -1,11 +1,10 @@
 {
   "Name": "Fanny",
   "DisplayName": "Fanny the Flame",
-  "AccountName": "HelpfulFlame",
+  "AccountName": "TerraFan83",
   "Description": "A helpful Flame looking to brighten your journey!",
-  "Location": "The Arsenal Dimension",
+  "Location": "The bottom right of {0}'s screen",
   "JoinDate": "4/28/2025",
-  "Followers": 156,
-  "Following": ["EvilFanny", "Yharim", "XB10"],
-  "Prism": true
+  "Followers": 12,
+  "Following": [ "EvilFanny", "TrapperBulbChan", "CrimSon", "Renault" ]
 }

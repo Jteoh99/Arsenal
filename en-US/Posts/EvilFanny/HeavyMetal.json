@@ -2,5 +2,6 @@
   "Name": "EvilFanny/HeavyMetal",
   "Poster": "EvilFanny",
   "Body": "I get asked a lot, so I guess I may as well post about it. I'd say my favorite genre is metal. Its great for getting stress out.",
-  "Tags": [ "NoxicPost" ]
+  "Tags": ["NoxicPost"],
+  "Priority": 0.5
 }
