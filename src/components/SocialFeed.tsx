@@ -13,7 +13,7 @@ const loadJsonFile = async (path: string) => {
   try {
     const response = await fetch(path);
     if (!response.ok) {
-      // Don't log 404 errors since we're probing for files that might not exist
+      // Silently handle 404s since we're probing for files
       if (response.status !== 404) {
         console.error(
           `Error loading ${path}: ${response.status} ${response.statusText}`,
@@ -33,7 +33,7 @@ const loadJsonFile = async (path: string) => {
 
 // Load profile by name
 const loadProfile = async (profileName: string) => {
-  return await loadJsonFile(`/en-US/Profiles/${profileName}.json`);
+  // Handle both nested and flat profile structures\n  return await loadJsonFile(`/en-US/Profiles/${profileName}.json`);
 };
 
 // Load post by profile and filename
@@ -41,83 +41,115 @@ const loadPost = async (profileName: string, filename: string) => {
   return await loadJsonFile(`/en-US/Posts/${profileName}/${filename}.json`);
 };
 
-// Discover all posts from all profiles
+// Comprehensive list of all known post files with their exact paths
 const discoverAllPosts = async () => {
-  const allProfiles = [
-    "Believers",
-    "CalamityMod",
-    "Crusaders",
-    "DailyHeartlandsNews",
-    "EvilFanny",
-    "Fanny",
-    "Ignalius",
-    "MiracleBoy",
-    "NotFabsol",
-    "Noxus",
-    "OldDuke",
-    "PlayerHater",
-    "Renault",
-    "Robyn",
-    "XB10",
-    "XboxGamer",
-    "Yharim",
-  ];
-
   const allPosts = [];
 
-  // Extended list of all known post files across all profiles
-  const allKnownPostFiles = [
+  // Define all known post paths based on the actual directory structure from project listing
+  const knownPostPaths = [
+    // Believers posts (nested structure) - confirmed to exist
+    { profile: "Believers/Believer1", file: "FalseProphet" },
+    { profile: "Believers/Believer10", file: "Indoctrination" },
+    { profile: "Believers/Believer11", file: "FalseFlag" },
+    { profile: "Believers/Believer12", file: "Martyr" },
+    { profile: "Believers/Believer13", file: "NoxicRogue" },
+    { profile: "Believers/Believer14", file: "NoxicMechanic" },
+    { profile: "Believers/Believer15", file: "Clentaminator" },
+    { profile: "Believers/Believer16", file: "OldDuke" },
+    { profile: "Believers/Believer2", file: "Yharim" },
+    { profile: "Believers/Believer3", file: "SlimeGod" },
+    { profile: "Believers/Believer4", file: "BrimstoneElemental" },
+    { profile: "Believers/Believer5", file: "Draedon" },
+    { profile: "Believers/Believer6", file: "EidolonWyrms" },
+    { profile: "Believers/Believer7", file: "Signus" },
+    { profile: "Believers/Believer8", file: "Crusade" },
+    { profile: "Believers/Believer9", file: "Plaguebringer" },
+
+    // CalamityMod posts
+    { profile: "CalamityMod", file: "YharonSky" },
+
+    // Crusaders posts (nested structure)
+    { profile: "Crusaders/Crusader1", file: "WheresYharim" },
+
+    // DailyHeartlandsNews posts - only confirmed ones from project listing
+    { profile: "DailyHeartlandsNews", file: "AerieTheories" },
+    { profile: "DailyHeartlandsNews", file: "BrimstoneCragsDiscovery" },
+    { profile: "DailyHeartlandsNews", file: "DiggerShowcase" },
+    { profile: "DailyHeartlandsNews", file: "DoGResprite" },
+    { profile: "DailyHeartlandsNews", file: "ExoShowcase" },
+    { profile: "DailyHeartlandsNews", file: "GauntletHorror" },
+    { profile: "DailyHeartlandsNews", file: "HeroicDamageControversy" },
+    { profile: "DailyHeartlandsNews", file: "ManaRevolution" },
+
+    // EvilFanny posts
+    { profile: "EvilFanny", file: "HeavyMetal" },
+
     // Fanny posts
-    "BabilHunting",
-    "FantasticDay",
-    "GoodMorning",
-    "Update",
+    { profile: "Fanny", file: "BabilHunting" },
+    { profile: "Fanny", file: "FantasticDay" },
+    { profile: "Fanny", file: "GoodMorning" },
+    { profile: "Fanny", file: "Update" },
+
+    // Ignalius posts
+    { profile: "Ignalius", file: "RavagerCallout" },
+
+    // MiracleBoy posts
+    { profile: "MiracleBoy", file: "Cartwheel" },
+    { profile: "MiracleBoy", file: "Dog" },
+
+    // NotFabsol posts
+    { profile: "NotFabsol", file: "Apology" },
+    { profile: "NotFabsol", file: "BurnAtTheStake" },
+    { profile: "NotFabsol", file: "ChildSoldiers" },
+    { profile: "NotFabsol", file: "Lihzahrdphobia" },
+    { profile: "NotFabsol", file: "PlagueDenial" },
+
+    // Noxus posts
+    { profile: "Noxus", file: "Xeroc" },
+
+    // OldDuke posts
+    { profile: "OldDuke", file: "YouDontExist" },
+
+    // PlayerHater posts
+    { profile: "PlayerHater", file: "BadMorning" },
+
+    // Renault posts
+    { profile: "Renault", file: "Advert1" },
+
+    // Robyn posts - only confirmed ones from project listing
+    { profile: "Robyn", file: "Brimstone" },
+    { profile: "Robyn", file: "Desert" },
+    { profile: "Robyn", file: "Dreams" },
+    { profile: "Robyn", file: "FunFact1" },
+    { profile: "Robyn", file: "FunFact2" },
+    { profile: "Robyn", file: "Hell" },
+    { profile: "Robyn", file: "Jungle" },
+    { profile: "Robyn", file: "LivingSituation" },
+
+    // XB10 posts
+    { profile: "XB10", file: "ArsenalStock" },
+
+    // XboxGamer posts
+    { profile: "XboxGamer", file: "PlaguedPC" },
+    { profile: "XboxGamer", file: "StupidHelper" },
+
     // Yharim posts
-    "Cheating",
-    "GodMusic",
-    "JungleQuestion",
-    "MoreToxic",
-    "PrideMonth",
-    "Private",
-    "Salty",
-    "ShitOn",
-    "spit",
-    // Other posts
-    "ArsenalStock",
-    "HeavyMetal",
-    "YharonSky",
-    "Xeroc",
-    // Believers posts
-    "Believer1",
-    "Believer2",
-    "Believer3",
-    "Believer4",
-    "Believer5",
-    "Believer6",
-    "Believer7",
-    "Believer8",
-    "Believer9",
-    "Believer10",
-    "Believer11",
-    "Believer12",
-    "Believer13",
-    "Believer14",
-    "Believer15",
-    "Believer16",
-    // Common names to try
-    "Post",
-    "Announcement",
-    "News",
-    "Question",
-    "Comment",
+    { profile: "Yharim", file: "Cheating" },
+    { profile: "Yharim", file: "GodMusic" },
+    { profile: "Yharim", file: "JungleQuestion" },
+    { profile: "Yharim", file: "MoreToxic" },
+    { profile: "Yharim", file: "PrideMonth" },
+    { profile: "Yharim", file: "Private" },
+    { profile: "Yharim", file: "Salty" },
+    { profile: "Yharim", file: "ShitOn" },
+    { profile: "Yharim", file: "spit" },
   ];
 
-  for (const profile of allProfiles) {
-    for (const postFile of allKnownPostFiles) {
-      const post = await loadPost(profile, postFile);
-      if (post && !allPosts.some((p) => p.Name === post.Name)) {
-        allPosts.push(post);
-      }
+  // Load each post with proper path handling
+  for (const { profile, file } of knownPostPaths) {
+    const post = await loadJsonFile(`/en-US/Posts/${profile}/${file}.json`);
+    if (post && !allPosts.some((p) => p.Name === post.Name)) {
+      allPosts.push(post);
     }
   }
 
@@ -197,6 +229,9 @@ const getProfilePicture = (profileName: string, profileData?: any) => {
   // Use the Name property from the profile data if available
   const name = profileData?.Name || profileName;
 
+  // Extract the base name from nested profiles (e.g., "Believers/Believer1" -> "Believer1")
+  const baseName = name.includes("/") ? name.split("/").pop() : name;
+
   // Available profile pictures based on actual assets
   const availableProfilePictures = [
     "Bluxunium",
@@ -214,9 +249,28 @@ const getProfilePicture = (profileName: string, profileData?: any) => {
     "Yharim",
   ];
 
-  // Check if there's an exact match for the profile picture
+  // Check if there's an exact match for the full name first
   if (availableProfilePictures.includes(name)) {
     return `/Assets/ProfilePictures/${name}.png`;
+  }
+
+  // Check if there's a match for the base name
+  if (availableProfilePictures.includes(baseName)) {
+    return `/Assets/ProfilePictures/${baseName}.png`;
+  }
+
+  // For Believers, use a default based on the believer number
+  if (baseName?.startsWith("Believer")) {
+    const believerNum = parseInt(baseName.replace("Believer", "")) || 1;
+    const defaultNum = ((believerNum - 1) % 5) + 1; // Cycle through Default1-5
+    return `/Assets/ProfilePictures/Default${defaultNum}.png`;
+  }
+
+  // For Crusaders, use a different default pattern
+  if (baseName?.startsWith("Crusader")) {
+    const crusaderNum = parseInt(baseName.replace("Crusader", "")) || 1;
+    const defaultNum = ((crusaderNum - 1) % 5) + 1; // Cycle through Default1-5
+    return `/Assets/ProfilePictures/Default${defaultNum}.png`;
   }
 
   // Default fallback
@@ -224,15 +278,17 @@ const getProfilePicture = (profileName: string, profileData?: any) => {
 };
 
 export default function SocialFeed() {
-  const [posts, setPosts] = useState(null);
+  const [allPosts, setAllPosts] = useState(null);
   const [profiles, setProfiles] = useState({});
   const [expandedComments, setExpandedComments] = useState(new Set());
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
-  const [displayedPosts, setDisplayedPosts] = useState(15);
+  const [currentPage, setCurrentPage] = useState(1);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedProfile, setSelectedProfile] = useState(null);
+
+  const POSTS_PER_PAGE = 10;
 
   useEffect(() => {
     const loadData = async () => {
@@ -319,15 +375,21 @@ export default function SocialFeed() {
           }
         }
 
-        // Sort posts by priority
-        loadedPosts.sort((a, b) => b.priority - a.priority);
+        // Sort posts by priority with randomization for same priority
+        loadedPosts.sort((a, b) => {
+          if (a.priority === b.priority) {
+            // Randomize posts with same priority
+            return Math.random() - 0.5;
+          }
+          return b.priority - a.priority;
+        });
 
         setProfiles(loadedProfiles);
-        setPosts(loadedPosts);
+        setAllPosts(loadedPosts);
       } catch (error) {
         console.error("Error loading data:", error);
         // Fallback to empty state
-        setPosts([]);
+        setAllPosts([]);
       }
     };
 
@@ -360,24 +422,29 @@ export default function SocialFeed() {
     });
   };
 
-  const loadMorePosts = () => {
-    if (!isLoadingMore && posts && displayedPosts < posts.length) {
+  const loadNextPage = () => {
+    if (!isLoadingMore && allPosts && hasMorePosts()) {
       setIsLoadingMore(true);
       setTimeout(() => {
-        const newDisplayedCount = Math.min(displayedPosts + 15, posts.length);
-        setDisplayedPosts(newDisplayedCount);
-
-        // If we're showing more than 30 posts, remove the first 15 to keep performance good
-        if (newDisplayedCount > 30) {
-          // This creates a sliding window effect
-          const keepFromIndex = 15;
-          const postsToShow = newDisplayedCount - keepFromIndex;
-          setDisplayedPosts(postsToShow);
-        }
-
+        setCurrentPage((prev) => prev + 1);
         setIsLoadingMore(false);
-      }, 800);
+      }, 300);
     }
+  };
+
+  const hasMorePosts = () => {
+    return allPosts && currentPage * POSTS_PER_PAGE < allPosts.length;
+  };
+
+  const getCurrentPagePosts = () => {
+    if (!allPosts) return [];
+    const startIndex = 0;
+    const endIndex = currentPage * POSTS_PER_PAGE;
+    return allPosts.slice(startIndex, endIndex);
+  };
+
+  const getTotalPages = () => {
+    return allPosts ? Math.ceil(allPosts.length / POSTS_PER_PAGE) : 0;
   };
 
   const playHypnosSound = () => {
@@ -482,177 +549,184 @@ export default function SocialFeed() {
       >
         {/* Chat Feed */}
         <div className="flex-1 px-6 py-6">
+          {/* Pagination Header */}
+          {allPosts && allPosts.length > 0 && (
+            <div className="mb-4 text-center text-gray-400 text-sm">
+              <div className="bg-slate-800 rounded-lg p-3 inline-block">
+                Page {currentPage} of {getTotalPages()} • Showing{" "}
+                {getCurrentPagePosts().length} of {allPosts.length} posts
+              </div>
+            </div>
+          )}
           <div className="h-[calc(100vh-3rem)] pr-3 overflow-y-auto">
-            {posts
-              ? posts
-                  .slice(Math.max(0, displayedPosts - 15), displayedPosts)
-                  .map((post) => (
-                    <div key={post.id} className="mb-8">
-                      <div className="flex items-start gap-4">
-                        <div
-                          className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all"
-                          onClick={() =>
-                            setSelectedProfile({
-                              username: post.username,
-                              poster: post.poster,
-                              avatar: post.avatar,
-                              handle: post.handle,
-                            })
-                          }
-                        >
-                          <img
-                            src={post.avatar}
-                            alt={`${post.username} avatar`}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span
-                              className="font-semibold text-white cursor-pointer hover:text-blue-400 transition-colors"
-                              onClick={() =>
-                                setSelectedProfile({
-                                  username: post.username,
-                                  poster: post.poster,
-                                  avatar: post.avatar,
-                                  handle: post.handle,
-                                })
-                              }
-                            >
-                              {post.username}
-                            </span>
-                            <span className="text-gray-400 text-sm">
-                              {post.handle}
-                            </span>
-                          </div>
-                          <div className="bg-slate-700 rounded-lg p-4 mb-3">
-                            <p className="text-gray-100">{post.content}</p>
-                            {/* Display image if available */}
-                            {post.image && (
-                              <img
-                                src={`/Assets/Images/${post.image}.png`}
-                                alt="Post image"
-                                className="mt-3 rounded-lg max-w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
-                                onClick={() =>
-                                  setSelectedImage(
-                                    `/Assets/Images/${post.image}.png`,
-                                  )
-                                }
-                                onError={(e) => {
-                                  e.target.style.display = "none";
-                                }}
-                              />
-                            )}
-                          </div>
-                          <div className="flex gap-6">
-                            {post.reactions.map((reaction, idx) => (
-                              <button
-                                key={idx}
-                                className="flex items-center gap-2 hover:scale-110 transition-transform text-gray-400 hover:text-white"
-                                title={reaction.label}
-                                onClick={() => {
-                                  if (reaction.name === "comments") {
-                                    toggleComments(post.id);
-                                  } else {
-                                    console.log(
-                                      `${reaction.label} clicked on post ${post.id}`,
-                                    );
-                                  }
-                                }}
-                              >
-                                <img
-                                  src={reaction.icon}
-                                  alt={reaction.label}
-                                  className="w-5 h-5 object-contain"
-                                />
-                                {reaction.name === "comments" && (
-                                  <span className="text-sm">
-                                    {post.comments.length}
-                                  </span>
-                                )}
-                              </button>
-                            ))}
-                          </div>
-
-                          {/* Comments Section with Animation */}
-                          <div
-                            className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                              expandedComments.has(post.id)
-                                ? "max-h-96 opacity-100"
-                                : "max-h-0 opacity-0"
-                            }`}
+            {allPosts
+              ? getCurrentPagePosts().map((post) => (
+                  <div key={post.id} className="mb-8">
+                    <div className="flex items-start gap-4">
+                      <div
+                        className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all"
+                        onClick={() =>
+                          setSelectedProfile({
+                            username: post.username,
+                            poster: post.poster,
+                            avatar: post.avatar,
+                            handle: post.handle,
+                          })
+                        }
+                      >
+                        <img
+                          src={post.avatar}
+                          alt={`${post.username} avatar`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span
+                            className="font-semibold text-white cursor-pointer hover:text-blue-400 transition-colors"
+                            onClick={() =>
+                              setSelectedProfile({
+                                username: post.username,
+                                poster: post.poster,
+                                avatar: post.avatar,
+                                handle: post.handle,
+                              })
+                            }
                           >
-                            <div className="mt-4 bg-slate-600 rounded-lg p-4">
-                              <div className="mb-3">
-                                <span className="text-sm font-semibold text-gray-300">
-                                  Comments ({post.comments.length})
+                            {post.username}
+                          </span>
+                          <span className="text-gray-400 text-sm">
+                            {post.handle}
+                          </span>
+                        </div>
+                        <div className="bg-slate-700 rounded-lg p-4 mb-3">
+                          <p className="text-gray-100">{post.content}</p>
+                          {/* Display image if available */}
+                          {post.image && (
+                            <img
+                              src={`/Assets/Images/${post.image}.png`}
+                              alt="Post image"
+                              className="mt-3 rounded-lg max-w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
+                              onClick={() =>
+                                setSelectedImage(
+                                  `/Assets/Images/${post.image}.png`,
+                                )
+                              }
+                              onError={(e) => {
+                                e.target.style.display = "none";
+                              }}
+                            />
+                          )}
+                        </div>
+                        <div className="flex gap-6">
+                          {post.reactions.map((reaction, idx) => (
+                            <button
+                              key={idx}
+                              className="flex items-center gap-2 hover:scale-110 transition-transform text-gray-400 hover:text-white"
+                              title={reaction.label}
+                              onClick={() => {
+                                if (reaction.name === "comments") {
+                                  toggleComments(post.id);
+                                } else {
+                                  console.log(
+                                    `${reaction.label} clicked on post ${post.id}`,
+                                  );
+                                }
+                              }}
+                            >
+                              <img
+                                src={reaction.icon}
+                                alt={reaction.label}
+                                className="w-5 h-5 object-contain"
+                              />
+                              {reaction.name === "comments" && (
+                                <span className="text-sm">
+                                  {post.comments.length}
                                 </span>
-                              </div>
-                              <div className="max-h-64 overflow-y-auto">
-                                <div className="space-y-3 pr-4">
-                                  {post.comments.length > 0 ? (
-                                    post.comments.map((comment) => (
-                                      <div
-                                        key={comment.id}
-                                        className="flex items-start gap-3"
-                                      >
-                                        <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-                                          <img
-                                            src={comment.avatar}
-                                            alt={`${comment.username} avatar`}
-                                            className="w-full h-full object-cover"
-                                          />
+                              )}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Comments Section with Animation */}
+                        <div
+                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                            expandedComments.has(post.id)
+                              ? "max-h-96 opacity-100"
+                              : "max-h-0 opacity-0"
+                          }`}
+                        >
+                          <div className="mt-4 bg-slate-600 rounded-lg p-4">
+                            <div className="mb-3">
+                              <span className="text-sm font-semibold text-gray-300">
+                                Comments ({post.comments.length})
+                              </span>
+                            </div>
+                            <div className="max-h-64 overflow-y-auto">
+                              <div className="space-y-3 pr-4">
+                                {post.comments.length > 0 ? (
+                                  post.comments.map((comment) => (
+                                    <div
+                                      key={comment.id}
+                                      className="flex items-start gap-3"
+                                    >
+                                      <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                                        <img
+                                          src={comment.avatar}
+                                          alt={`${comment.username} avatar`}
+                                          className="w-full h-full object-cover"
+                                        />
+                                      </div>
+                                      <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-1">
+                                          <span className="font-semibold text-white text-sm">
+                                            {comment.username}
+                                          </span>
+                                          <span className="text-gray-400 text-xs">
+                                            {comment.handle}
+                                          </span>
                                         </div>
-                                        <div className="flex-1">
-                                          <div className="flex items-center gap-2 mb-1">
-                                            <span className="font-semibold text-white text-sm">
-                                              {comment.username}
-                                            </span>
-                                            <span className="text-gray-400 text-xs">
-                                              {comment.handle}
-                                            </span>
-                                          </div>
-                                          <p className="text-gray-200 text-sm mb-2">
-                                            {comment.content}
-                                          </p>
-                                          <div className="flex gap-3">
-                                            {comment.reactions.map(
-                                              (reaction, idx) => (
-                                                <button
-                                                  key={idx}
-                                                  className="flex items-center gap-1 hover:scale-110 transition-transform text-gray-400 hover:text-white"
-                                                  title={reaction.label}
-                                                  onClick={() =>
-                                                    console.log(
-                                                      `${reaction.label} clicked on comment ${comment.id}`,
-                                                    )
-                                                  }
-                                                >
-                                                  <img
-                                                    src={reaction.icon}
-                                                    alt={reaction.label}
-                                                    className="w-4 h-4 object-contain"
-                                                  />
-                                                </button>
-                                              ),
-                                            )}
-                                          </div>
+                                        <p className="text-gray-200 text-sm mb-2">
+                                          {comment.content}
+                                        </p>
+                                        <div className="flex gap-3">
+                                          {comment.reactions.map(
+                                            (reaction, idx) => (
+                                              <button
+                                                key={idx}
+                                                className="flex items-center gap-1 hover:scale-110 transition-transform text-gray-400 hover:text-white"
+                                                title={reaction.label}
+                                                onClick={() =>
+                                                  console.log(
+                                                    `${reaction.label} clicked on comment ${comment.id}`,
+                                                  )
+                                                }
+                                              >
+                                                <img
+                                                  src={reaction.icon}
+                                                  alt={reaction.label}
+                                                  className="w-4 h-4 object-contain"
+                                                />
+                                              </button>
+                                            ),
+                                          )}
                                         </div>
                                       </div>
-                                    ))
-                                  ) : (
-                                    <p className="text-gray-400 text-sm">
-                                      No comments yet.
-                                    </p>
-                                  )}
-                                </div>
+                                    </div>
+                                  ))
+                                ) : (
+                                  <p className="text-gray-400 text-sm">
+                                    No comments yet.
+                                  </p>
+                                )}
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  ))
+                  </div>
+                ))
               : Array.from({ length: 3 }).map((_, i) => (
                   <div key={i} className="mb-6">
                     <div className="flex items-start gap-4">
@@ -666,10 +740,10 @@ export default function SocialFeed() {
                 ))}
 
             {/* Load More Button */}
-            {posts && displayedPosts < posts.length && (
+            {hasMorePosts() && (
               <div className="flex justify-center py-6">
                 <button
-                  onClick={loadMorePosts}
+                  onClick={loadNextPage}
                   disabled={isLoadingMore}
                   className={`px-8 py-3 rounded-lg font-semibold transition-all duration-200 ${
                     isLoadingMore
@@ -683,18 +757,26 @@ export default function SocialFeed() {
                       Loading...
                     </div>
                   ) : (
-                    `Load More Posts (${posts.length - displayedPosts} remaining)`
+                    `Load More Posts (${allPosts ? allPosts.length - currentPage * POSTS_PER_PAGE : 0} remaining)`
                   )}
                 </button>
               </div>
             )}
 
-            {/* All posts loaded message */}
-            {posts && displayedPosts >= posts.length && posts.length > 15 && (
-              <div className="flex justify-center py-6 text-gray-400 text-sm">
-                All {posts.length} posts loaded
-              </div>
-            )}
+            {/* Pagination Info and All posts loaded message */}
+            {allPosts &&
+              !hasMorePosts() &&
+              allPosts.length > POSTS_PER_PAGE && (
+                <div className="flex justify-center py-6 text-gray-400 text-sm">
+                  <div className="text-center">
+                    <div>All {allPosts.length} posts loaded</div>
+                    <div className="mt-1">
+                      Page {currentPage} of {getTotalPages()} • Showing{" "}
+                      {getCurrentPagePosts().length} posts
+                    </div>
+                  </div>
+                </div>
+              )}
           </div>
         </div>
 
