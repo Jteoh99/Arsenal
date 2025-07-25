@@ -15,17 +15,17 @@ const loadJsonFile = async (path: string) => {
     if (!response.ok) {
       // Silently handle 404s since we're probing for files
       if (response.status !== 404) {
-        console.error(
-          `Error loading ${path}: ${response.status} ${response.statusText}`,
-        );
+        console.warn(`Error loading ${path}: ${response.status} ${response.statusText}`);
       }
       return null;
     }
     return await response.json();
   } catch (error) {
-    // Only log unexpected errors, not network errors for missing files
-    if (!error.message.includes("Failed to fetch")) {
-      console.error(`Error loading ${path}:`, error);
+    // Handle network errors more gracefully
+    if (error.message.includes("Failed to fetch")) {
+      console.warn(`File not found or network error: ${path}`);
+    } else {
+      console.error(`Error parsing JSON from ${path}:`, error);
     }
     return null;
   }
@@ -71,7 +71,7 @@ const discoverAllPosts = async () => {
     // Crusaders posts (nested structure)
     { profile: "Crusaders/Crusader1", file: "WheresYharim" },
 
-    // DailyHeartlandsNews posts - only confirmed ones from project listing
+    // DailyHeartlandsNews posts - all confirmed files
     { profile: "DailyHeartlandsNews", file: "AerieTheories" },
     { profile: "DailyHeartlandsNews", file: "BrimstoneCragsDiscovery" },
     { profile: "DailyHeartlandsNews", file: "DiggerShowcase" },
@@ -80,6 +80,15 @@ const discoverAllPosts = async () => {
     { profile: "DailyHeartlandsNews", file: "GauntletHorror" },
     { profile: "DailyHeartlandsNews", file: "HeroicDamageControversy" },
     { profile: "DailyHeartlandsNews", file: "ManaRevolution" },
+    { profile: "DailyHeartlandsNews", file: "MurasamaPrototypeFootage" },
+    { profile: "DailyHeartlandsNews", file: "NautilusAppears" },
+    { profile: "DailyHeartlandsNews", file: "OldDukeSpeaks" },
+    { profile: "DailyHeartlandsNews", file: "PerennialGroveDiscovery" },
+    { profile: "DailyHeartlandsNews", file: "PinkCrystalDiscovery" },
+    { profile: "DailyHeartlandsNews", file: "ProfanedBiomeEmergence" },
+    { profile: "DailyHeartlandsNews", file: "SkyKingdomRelics" },
+    { profile: "DailyHeartlandsNews", file: "StatisWarning" },
+    { profile: "DailyHeartlandsNews", file: "YharmyMobilization" },
 
     // EvilFanny posts
     { profile: "EvilFanny", file: "HeavyMetal" },
@@ -116,7 +125,7 @@ const discoverAllPosts = async () => {
     // Renault posts
     { profile: "Renault", file: "Advert1" },
 
-    // Robyn posts - only confirmed ones from project listing
+    // Robyn posts - all confirmed files
     { profile: "Robyn", file: "Brimstone" },
     { profile: "Robyn", file: "Desert" },
     { profile: "Robyn", file: "Dreams" },
@@ -125,6 +134,14 @@ const discoverAllPosts = async () => {
     { profile: "Robyn", file: "Hell" },
     { profile: "Robyn", file: "Jungle" },
     { profile: "Robyn", file: "LivingSituation" },
+    { profile: "Robyn", file: "Ocean" },
+    { profile: "Robyn", file: "Plague" },
+    { profile: "Robyn", file: "Snow" },
+    { profile: "Robyn", file: "Spread" },
+    { profile: "Robyn", file: "SunkenSea" },
+    { profile: "Robyn", file: "Surface" },
+    { profile: "Robyn", file: "WhiteLotus" },
+    { profile: "Robyn", file: "WorldEvil" },
 
     // XB10 posts
     { profile: "XB10", file: "ArsenalStock" },
@@ -160,42 +177,40 @@ const discoverAllPosts = async () => {
   return allPosts;
 };
 
-// Load unique replies for a post
-const loadUniqueReplies = async (postName: string) => {
-  const profiles = [
-    "Bluxunium",
-    "BoneGod",
-    "Crusaders",
-    "EvilFanny",
-    "Hypnos",
-    "OldDuke",
-    "Yharim",
+// Dynamically discover all unique reply files and create a mapping
+const discoverUniqueReplies = async () => {
+  const replyMapping = new Map();
+
+  // Known unique reply files based on actual directory structure
+  const knownUniqueReplies = [
+    { path: "/en-US/Replies/UniqueReplies/Bluxunium/DoGResprite.json" },
+    { path: "/en-US/Replies/UniqueReplies/BoneGod/DoGResprite.json" },
+    { path: "/en-US/Replies/UniqueReplies/EvilFanny/BabilHunting.json" },
+    { path: "/en-US/Replies/UniqueReplies/OldDuke/OldDukeSpeaks.json" },
+    { path: "/en-US/Replies/UniqueReplies/Hypnos/ChlorophyllExplanation.json" },
+    { path: "/en-US/Replies/UniqueReplies/Yharim/Private.json" },
+    { path: "/en-US/Replies/UniqueReplies/Crusaders/Crusader11/WhatTheFuckDude.json" },
+    { path: "/en-US/Replies/UniqueReplies/Yharim/PrideMonth/1.json" },
+    { path: "/en-US/Replies/UniqueReplies/Yharim/PrideMonth/2.json" },
+    { path: "/en-US/Replies/UniqueReplies/Yharim/PrideMonth/3.json" },
   ];
-  const replies = [];
 
-  for (const profile of profiles) {
-    // Try common reply file names
-    const commonReplyFiles = [
-      "ChlorophyllExplanation",
-      "BabilHunting",
-      "Private",
-      "PrideMonth",
-      "Reply",
-      "Response",
-      "Comment",
-      "Answer",
-    ];
-
-    for (const replyFile of commonReplyFiles) {
-      const reply = await loadJsonFile(
-        `/en-US/Replies/UniqueReplies/${profile}/${replyFile}.json`,
-      );
-      if (reply && reply.PostName === postName) {
-        replies.push(reply);
+  for (const { path } of knownUniqueReplies) {
+    const reply = await loadJsonFile(path);
+    if (reply && reply.PostName) {
+      if (!replyMapping.has(reply.PostName)) {
+        replyMapping.set(reply.PostName, []);
       }
+      replyMapping.get(reply.PostName).push(reply);
     }
   }
-  return replies;
+
+  return replyMapping;
+};
+
+// Load unique replies for a post using the discovered mapping
+const loadUniqueReplies = async (postName: string, replyMapping: Map<string, any[]>) => {
+  return replyMapping.get(postName) || [];
 };
 
 // Load generic replies that match post tags
@@ -284,15 +299,18 @@ export default function SocialFeed() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedProfile, setSelectedProfile] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const POSTS_PER_PAGE = 10;
 
   useEffect(() => {
     const loadData = async () => {
       try {
+        // Discover unique replies mapping first
+        const replyMapping = await discoverUniqueReplies();
+
         // Discover and load all posts dynamically
         const allPosts = await discoverAllPosts();
         console.log("Discovered posts:", allPosts.length, allPosts);
@@ -309,8 +327,8 @@ export default function SocialFeed() {
               loadedProfiles[post.Poster] = profile;
             }
 
-            // Load unique replies for this post
-            const uniqueReplies = await loadUniqueReplies(post.Name);
+            // Load unique replies for this post using the mapping
+            const uniqueReplies = await loadUniqueReplies(post.Name, replyMapping);
             const comments = [];
 
             // Add unique replies
@@ -318,17 +336,22 @@ export default function SocialFeed() {
               const replyProfile = await loadProfile(reply.Poster);
               if (replyProfile) {
                 loadedProfiles[reply.Poster] = replyProfile;
-                comments.push({
-                  id: `${post.Name}-${reply.Poster}`,
-                  username: replyProfile.DisplayName,
-                  handle: `@${replyProfile.AccountName}`,
-                  content: reply.Body,
-                  timestamp: new Date(Date.now() - Math.random() * 3600 * 1000),
-                  avatar: getProfilePicture(reply.Poster, replyProfile),
-                  reactions: [reactionTypes[0], reactionTypes[1]],
-                  priority: reply.Priority || 0,
-                });
               }
+
+              // Add the reply even if profile fails to load
+              const displayName = replyProfile?.DisplayName || reply.Poster;
+              const accountName = replyProfile?.AccountName || reply.Poster.toLowerCase();
+
+              comments.push({
+                id: `${post.Name}-${reply.Poster}`,
+                username: displayName,
+                handle: `@${accountName}`,
+                content: reply.Body,
+                timestamp: new Date(Date.now() - Math.random() * 3600 * 1000),
+                avatar: getProfilePicture(reply.Poster, replyProfile),
+                reactions: [reactionTypes[0], reactionTypes[1]],
+                priority: reply.Priority || 0,
+              });
             }
 
             // Add some sample comments if no unique replies
@@ -422,29 +445,90 @@ export default function SocialFeed() {
     });
   };
 
-  const loadNextPage = () => {
-    if (!isLoadingMore && allPosts && hasMorePosts()) {
-      setIsLoadingMore(true);
-      setTimeout(() => {
-        setCurrentPage((prev) => prev + 1);
-        setIsLoadingMore(false);
-      }, 300);
+  const goToPage = (page: number) => {
+    const totalPages = getTotalPages();
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
     }
   };
 
+  const goToFirstPage = () => goToPage(1);
+  const goToLastPage = () => goToPage(getTotalPages());
+  const goToPreviousPage = () => goToPage(currentPage - 1);
+  const goToNextPage = () => goToPage(currentPage + 1);
+
   const hasMorePosts = () => {
-    return allPosts && currentPage * POSTS_PER_PAGE < allPosts.length;
+    return getFilteredPosts().length > 0 && currentPage < getTotalPages();
+  };
+
+  const hasPreviousPage = () => {
+    return currentPage > 1;
+  };
+
+  const getVisiblePageNumbers = () => {
+    const totalPages = getTotalPages();
+    const maxVisible = 5;
+    const current = currentPage;
+
+    if (totalPages <= maxVisible) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    let start = Math.max(1, current - Math.floor(maxVisible / 2));
+    let end = Math.min(totalPages, start + maxVisible - 1);
+
+    if (end - start + 1 < maxVisible) {
+      start = Math.max(1, end - maxVisible + 1);
+    }
+
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  };
+
+  const getFilteredPosts = () => {
+    if (!allPosts) return [];
+
+    if (!searchQuery.trim()) {
+      return allPosts;
+    }
+
+    const query = searchQuery.toLowerCase();
+    return allPosts.filter(post => {
+      // Search in post content
+      if (post.content.toLowerCase().includes(query)) {
+        return true;
+      }
+
+      // Search in username/display name
+      if (post.username.toLowerCase().includes(query)) {
+        return true;
+      }
+
+      // Search in handle/account name
+      if (post.handle.toLowerCase().includes(query)) {
+        return true;
+      }
+
+      // Search in comments
+      const hasMatchingComment = post.comments.some(comment => {
+        return comment.content.toLowerCase().includes(query) ||
+               comment.username.toLowerCase().includes(query) ||
+               comment.handle.toLowerCase().includes(query);
+      });
+
+      return hasMatchingComment;
+    });
   };
 
   const getCurrentPagePosts = () => {
-    if (!allPosts) return [];
-    const startIndex = 0;
-    const endIndex = currentPage * POSTS_PER_PAGE;
-    return allPosts.slice(startIndex, endIndex);
+    const filteredPosts = getFilteredPosts();
+    const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
+    const endIndex = startIndex + POSTS_PER_PAGE;
+    return filteredPosts.slice(startIndex, endIndex);
   };
 
   const getTotalPages = () => {
-    return allPosts ? Math.ceil(allPosts.length / POSTS_PER_PAGE) : 0;
+    const filteredPosts = getFilteredPosts();
+    return filteredPosts ? Math.ceil(filteredPosts.length / POSTS_PER_PAGE) : 0;
   };
 
   const playHypnosSound = () => {
@@ -460,7 +544,7 @@ export default function SocialFeed() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-800 text-white flex relative">
+    <div className="h-screen bg-slate-800 text-white flex relative overflow-hidden">
       {/* Toggle Button */}
       {isSmallScreen && (
         <button
@@ -548,18 +632,49 @@ export default function SocialFeed() {
         }`}
       >
         {/* Chat Feed */}
-        <div className="flex-1 px-6 py-6">
-          {/* Pagination Header */}
-          {allPosts && allPosts.length > 0 && (
-            <div className="mb-4 text-center text-gray-400 text-sm">
-              <div className="bg-slate-800 rounded-lg p-3 inline-block">
-                Page {currentPage} of {getTotalPages()} • Showing{" "}
-                {getCurrentPagePosts().length} of {allPosts.length} posts
+        <div className="flex-1 pl-6 pt-0 pb-0">
+          {/* Search Bar */}
+          <div className="mb-4 pt-4">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search posts, users, or replies..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1); // Reset to first page when searching
+                }}
+                className="w-full bg-slate-700 text-white placeholder-gray-400 rounded-lg px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-slate-600 transition-colors"
+              />
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
               </div>
             </div>
-          )}
-          <div className="h-[calc(100vh-3rem)] pr-3 overflow-y-auto">
-            {allPosts
+            {searchQuery && (
+              <div className="mt-2 text-sm text-gray-400">
+                Found {getFilteredPosts().length} result{getFilteredPosts().length !== 1 ? 's' : ''} for "{searchQuery}"
+              </div>
+            )}
+          </div>
+
+          <div className="h-[634px] overflow-y-auto mr-[10px]" style={{padding: '0 12.5px 0 0'}}>
+            {searchQuery && getFilteredPosts().length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-64 text-gray-400">
+                <svg className="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <h3 className="text-lg font-medium mb-2">No results found</h3>
+                <p className="text-center">No posts match your search for "{searchQuery}"</p>
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Clear search
+                </button>
+              </div>
+            ) : allPosts
               ? getCurrentPagePosts().map((post) => (
                   <div key={post.id} className="mb-8">
                     <div className="flex items-start gap-4">
@@ -656,7 +771,7 @@ export default function SocialFeed() {
                               : "max-h-0 opacity-0"
                           }`}
                         >
-                          <div className="mt-4 bg-slate-600 rounded-lg p-4">
+                          <div className="mt-4 bg-slate-700 rounded-lg p-4">
                             <div className="mb-3">
                               <span className="text-sm font-semibold text-gray-300">
                                 Comments ({post.comments.length})
@@ -739,44 +854,100 @@ export default function SocialFeed() {
                   </div>
                 ))}
 
-            {/* Load More Button */}
-            {hasMorePosts() && (
-              <div className="flex justify-center py-6">
-                <button
-                  onClick={loadNextPage}
-                  disabled={isLoadingMore}
-                  className={`px-8 py-3 rounded-lg font-semibold transition-all duration-200 ${
-                    isLoadingMore
-                      ? "bg-gray-600 text-gray-400 cursor-not-allowed"
-                      : "bg-blue-600 hover:bg-blue-700 text-white hover:scale-105 shadow-lg hover:shadow-xl"
-                  }`}
-                >
-                  {isLoadingMore ? (
-                    <div className="flex items-center gap-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
-                      Loading...
-                    </div>
-                  ) : (
-                    `Load More Posts (${allPosts ? allPosts.length - currentPage * POSTS_PER_PAGE : 0} remaining)`
-                  )}
-                </button>
-              </div>
-            )}
+            {/* Pagination Controls */}
+            {allPosts && allPosts.length > POSTS_PER_PAGE && (
+              <div className="flex flex-col items-center py-2 space-y-2">
+                <div className="flex items-center gap-2 bg-slate-800 rounded-lg p-3">
+                  {/* First Page */}
+                  <div
+                    onClick={hasPreviousPage() ? goToFirstPage : undefined}
+                    className={`p-2 rounded-md cursor-pointer transition-colors ${
+                      !hasPreviousPage()
+                        ? "text-gray-400 cursor-not-allowed"
+                        : "text-white hover:bg-slate-600"
+                    }`}
+                    title="First page"
+                  >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                    </svg>
+                  </div>
 
-            {/* Pagination Info and All posts loaded message */}
-            {allPosts &&
-              !hasMorePosts() &&
-              allPosts.length > POSTS_PER_PAGE && (
-                <div className="flex justify-center py-6 text-gray-400 text-sm">
-                  <div className="text-center">
-                    <div>All {allPosts.length} posts loaded</div>
-                    <div className="mt-1">
-                      Page {currentPage} of {getTotalPages()} • Showing{" "}
-                      {getCurrentPagePosts().length} posts
-                    </div>
+                  {/* Previous Page */}
+                  <div
+                    onClick={hasPreviousPage() ? goToPreviousPage : undefined}
+                    className={`p-2 rounded-md cursor-pointer transition-colors ${
+                      !hasPreviousPage()
+                        ? "text-gray-400 cursor-not-allowed"
+                        : "text-white hover:bg-slate-600"
+                    }`}
+                    title="Previous page"
+                  >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+
+                  {/* Page Numbers */}
+                  {getVisiblePageNumbers().map((pageNum) => (
+                    <button
+                      key={pageNum}
+                      onClick={() => goToPage(pageNum)}
+                      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                        pageNum === currentPage
+                          ? "bg-blue-600 text-white"
+                          : "bg-slate-700 text-white hover:bg-slate-600"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  ))}
+
+                  {/* Next Page */}
+                  <div
+                    onClick={hasMorePosts() ? goToNextPage : undefined}
+                    className={`p-2 rounded-md cursor-pointer transition-colors ${
+                      !hasMorePosts()
+                        ? "text-gray-400 cursor-not-allowed"
+                        : "text-white hover:bg-slate-600"
+                    }`}
+                    title="Next page"
+                  >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+
+                  {/* Last Page */}
+                  <div
+                    onClick={hasMorePosts() ? goToLastPage : undefined}
+                    className={`p-2 rounded-md cursor-pointer transition-colors ${
+                      !hasMorePosts()
+                        ? "text-gray-400 cursor-not-allowed"
+                        : "text-white hover:bg-slate-600"
+                    }`}
+                    title="Last page"
+                  >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0zm-6 0a1 1 0 010-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                    </svg>
                   </div>
                 </div>
-              )}
+
+                {/* Pagination Info - moved below buttons */}
+                {allPosts && allPosts.length > 0 && (
+                  <div className="text-center text-gray-400 text-sm">
+                    <div className="bg-slate-800 rounded-lg p-3">
+                      <div>Page {currentPage} of {getTotalPages()}</div>
+                      <div className="mt-1">
+                        Showing {getCurrentPagePosts().length} of {getFilteredPosts().length} posts
+                        {searchQuery && ` (filtered from ${allPosts?.length || 0} total)`}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
