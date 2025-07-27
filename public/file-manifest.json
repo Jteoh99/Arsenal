@@ -1,0 +1,791 @@
+{
+  "posts": [
+    {
+      "path": "Posts/Believers/Believer1/FalseProphet.json",
+      "profile": "",
+      "filename": "Posts\\Believers\\Believer1\\FalseProphet"
+    },
+    {
+      "path": "Posts/Believers/Believer10/Indoctrination.json",
+      "profile": "",
+      "filename": "Posts\\Believers\\Believer10\\Indoctrination"
+    },
+    {
+      "path": "Posts/Believers/Believer11/FalseFlag.json",
+      "profile": "",
+      "filename": "Posts\\Believers\\Believer11\\FalseFlag"
+    },
+    {
+      "path": "Posts/Believers/Believer12/Martyr.json",
+      "profile": "",
+      "filename": "Posts\\Believers\\Believer12\\Martyr"
+    },
+    {
+      "path": "Posts/Believers/Believer13/NoxicRogue.json",
+      "profile": "",
+      "filename": "Posts\\Believers\\Believer13\\NoxicRogue"
+    },
+    {
+      "path": "Posts/Believers/Believer14/NoxicMechanic.json",
+      "profile": "",
+      "filename": "Posts\\Believers\\Believer14\\NoxicMechanic"
+    },
+    {
+      "path": "Posts/Believers/Believer15/Clentaminator.json",
+      "profile": "",
+      "filename": "Posts\\Believers\\Believer15\\Clentaminator"
+    },
+    {
+      "path": "Posts/Believers/Believer16/OldDuke.json",
+      "profile": "",
+      "filename": "Posts\\Believers\\Believer16\\OldDuke"
+    },
+    {
+      "path": "Posts/Believers/Believer2/Yharim.json",
+      "profile": "",
+      "filename": "Posts\\Believers\\Believer2\\Yharim"
+    },
+    {
+      "path": "Posts/Believers/Believer3/SlimeGod.json",
+      "profile": "",
+      "filename": "Posts\\Believers\\Believer3\\SlimeGod"
+    },
+    {
+      "path": "Posts/Believers/Believer4/BrimstoneElemental.json",
+      "profile": "",
+      "filename": "Posts\\Believers\\Believer4\\BrimstoneElemental"
+    },
+    {
+      "path": "Posts/Believers/Believer5/Draedon.json",
+      "profile": "",
+      "filename": "Posts\\Believers\\Believer5\\Draedon"
+    },
+    {
+      "path": "Posts/Believers/Believer6/EidolonWyrms.json",
+      "profile": "",
+      "filename": "Posts\\Believers\\Believer6\\EidolonWyrms"
+    },
+    {
+      "path": "Posts/Believers/Believer7/Signus.json",
+      "profile": "",
+      "filename": "Posts\\Believers\\Believer7\\Signus"
+    },
+    {
+      "path": "Posts/Believers/Believer8/Crusade.json",
+      "profile": "",
+      "filename": "Posts\\Believers\\Believer8\\Crusade"
+    },
+    {
+      "path": "Posts/Believers/Believer9/Plaguebringer.json",
+      "profile": "",
+      "filename": "Posts\\Believers\\Believer9\\Plaguebringer"
+    },
+    {
+      "path": "Posts/CalamityMod/YharonSky.json",
+      "profile": "",
+      "filename": "Posts\\CalamityMod\\YharonSky"
+    },
+    {
+      "path": "Posts/Crusaders/Crusader1/WheresYharim.json",
+      "profile": "",
+      "filename": "Posts\\Crusaders\\Crusader1\\WheresYharim"
+    },
+    {
+      "path": "Posts/DailyHeartlandsNews/AerieTheories.json",
+      "profile": "",
+      "filename": "Posts\\DailyHeartlandsNews\\AerieTheories"
+    },
+    {
+      "path": "Posts/DailyHeartlandsNews/BrimstoneCragsDiscovery.json",
+      "profile": "",
+      "filename": "Posts\\DailyHeartlandsNews\\BrimstoneCragsDiscovery"
+    },
+    {
+      "path": "Posts/DailyHeartlandsNews/DiggerShowcase.json",
+      "profile": "",
+      "filename": "Posts\\DailyHeartlandsNews\\DiggerShowcase"
+    },
+    {
+      "path": "Posts/DailyHeartlandsNews/DoGResprite.json",
+      "profile": "",
+      "filename": "Posts\\DailyHeartlandsNews\\DoGResprite"
+    },
+    {
+      "path": "Posts/DailyHeartlandsNews/ExoShowcase.json",
+      "profile": "",
+      "filename": "Posts\\DailyHeartlandsNews\\ExoShowcase"
+    },
+    {
+      "path": "Posts/DailyHeartlandsNews/GauntletHorror.json",
+      "profile": "",
+      "filename": "Posts\\DailyHeartlandsNews\\GauntletHorror"
+    },
+    {
+      "path": "Posts/DailyHeartlandsNews/HeroicDamageControversy.json",
+      "profile": "",
+      "filename": "Posts\\DailyHeartlandsNews\\HeroicDamageControversy"
+    },
+    {
+      "path": "Posts/DailyHeartlandsNews/ManaRevolution.json",
+      "profile": "",
+      "filename": "Posts\\DailyHeartlandsNews\\ManaRevolution"
+    },
+    {
+      "path": "Posts/DailyHeartlandsNews/MurasamaPrototypeFootage.json",
+      "profile": "",
+      "filename": "Posts\\DailyHeartlandsNews\\MurasamaPrototypeFootage"
+    },
+    {
+      "path": "Posts/DailyHeartlandsNews/NautilusAppears.json",
+      "profile": "",
+      "filename": "Posts\\DailyHeartlandsNews\\NautilusAppears"
+    },
+    {
+      "path": "Posts/DailyHeartlandsNews/OldDukeSpeaks.json",
+      "profile": "",
+      "filename": "Posts\\DailyHeartlandsNews\\OldDukeSpeaks"
+    },
+    {
+      "path": "Posts/DailyHeartlandsNews/PerennialGroveDiscovery.json",
+      "profile": "",
+      "filename": "Posts\\DailyHeartlandsNews\\PerennialGroveDiscovery"
+    },
+    {
+      "path": "Posts/DailyHeartlandsNews/PinkCrystalDiscovery.json",
+      "profile": "",
+      "filename": "Posts\\DailyHeartlandsNews\\PinkCrystalDiscovery"
+    },
+    {
+      "path": "Posts/DailyHeartlandsNews/ProfanedBiomeEmergence.json",
+      "profile": "",
+      "filename": "Posts\\DailyHeartlandsNews\\ProfanedBiomeEmergence"
+    },
+    {
+      "path": "Posts/DailyHeartlandsNews/SkyKingdomRelics.json",
+      "profile": "",
+      "filename": "Posts\\DailyHeartlandsNews\\SkyKingdomRelics"
+    },
+    {
+      "path": "Posts/DailyHeartlandsNews/StatisWarning.json",
+      "profile": "",
+      "filename": "Posts\\DailyHeartlandsNews\\StatisWarning"
+    },
+    {
+      "path": "Posts/DailyHeartlandsNews/YharmyMobilization.json",
+      "profile": "",
+      "filename": "Posts\\DailyHeartlandsNews\\YharmyMobilization"
+    },
+    {
+      "path": "Posts/EvilFanny/HeavyMetal.json",
+      "profile": "",
+      "filename": "Posts\\EvilFanny\\HeavyMetal"
+    },
+    {
+      "path": "Posts/Fanny/BabilHunting.json",
+      "profile": "",
+      "filename": "Posts\\Fanny\\BabilHunting"
+    },
+    {
+      "path": "Posts/Fanny/FantasticDay.json",
+      "profile": "",
+      "filename": "Posts\\Fanny\\FantasticDay"
+    },
+    {
+      "path": "Posts/Fanny/GoodMorning.json",
+      "profile": "",
+      "filename": "Posts\\Fanny\\GoodMorning"
+    },
+    {
+      "path": "Posts/Fanny/Update.json",
+      "profile": "",
+      "filename": "Posts\\Fanny\\Update"
+    },
+    {
+      "path": "Posts/Ignalius/RavagerCallout.json",
+      "profile": "",
+      "filename": "Posts\\Ignalius\\RavagerCallout"
+    },
+    {
+      "path": "Posts/MiracleBoy/Cartwheel.json",
+      "profile": "",
+      "filename": "Posts\\MiracleBoy\\Cartwheel"
+    },
+    {
+      "path": "Posts/MiracleBoy/Dog.json",
+      "profile": "",
+      "filename": "Posts\\MiracleBoy\\Dog"
+    },
+    {
+      "path": "Posts/MiracleBoy/Holidays.json",
+      "profile": "",
+      "filename": "Posts\\MiracleBoy\\Holidays"
+    },
+    {
+      "path": "Posts/MiracleBoy/Public.json",
+      "profile": "",
+      "filename": "Posts\\MiracleBoy\\Public"
+    },
+    {
+      "path": "Posts/NotFabsol/Apology.json",
+      "profile": "",
+      "filename": "Posts\\NotFabsol\\Apology"
+    },
+    {
+      "path": "Posts/NotFabsol/BurnAtTheStake.json",
+      "profile": "",
+      "filename": "Posts\\NotFabsol\\BurnAtTheStake"
+    },
+    {
+      "path": "Posts/NotFabsol/ChildSoldiers.json",
+      "profile": "",
+      "filename": "Posts\\NotFabsol\\ChildSoldiers"
+    },
+    {
+      "path": "Posts/NotFabsol/Lihzahrdphobia.json",
+      "profile": "",
+      "filename": "Posts\\NotFabsol\\Lihzahrdphobia"
+    },
+    {
+      "path": "Posts/NotFabsol/PlagueDenial.json",
+      "profile": "",
+      "filename": "Posts\\NotFabsol\\PlagueDenial"
+    },
+    {
+      "path": "Posts/Noxus/Xeroc.json",
+      "profile": "",
+      "filename": "Posts\\Noxus\\Xeroc"
+    },
+    {
+      "path": "Posts/OldDuke/YouDontExist.json",
+      "profile": "",
+      "filename": "Posts\\OldDuke\\YouDontExist"
+    },
+    {
+      "path": "Posts/PlayerHater/BadMorning.json",
+      "profile": "",
+      "filename": "Posts\\PlayerHater\\BadMorning"
+    },
+    {
+      "path": "Posts/Renault/Advert1.json",
+      "profile": "",
+      "filename": "Posts\\Renault\\Advert1"
+    },
+    {
+      "path": "Posts/Robyn/Brimstone.json",
+      "profile": "",
+      "filename": "Posts\\Robyn\\Brimstone"
+    },
+    {
+      "path": "Posts/Robyn/Desert.json",
+      "profile": "",
+      "filename": "Posts\\Robyn\\Desert"
+    },
+    {
+      "path": "Posts/Robyn/Dreams.json",
+      "profile": "",
+      "filename": "Posts\\Robyn\\Dreams"
+    },
+    {
+      "path": "Posts/Robyn/FunFact1.json",
+      "profile": "",
+      "filename": "Posts\\Robyn\\FunFact1"
+    },
+    {
+      "path": "Posts/Robyn/FunFact2.json",
+      "profile": "",
+      "filename": "Posts\\Robyn\\FunFact2"
+    },
+    {
+      "path": "Posts/Robyn/Hell.json",
+      "profile": "",
+      "filename": "Posts\\Robyn\\Hell"
+    },
+    {
+      "path": "Posts/Robyn/Jungle.json",
+      "profile": "",
+      "filename": "Posts\\Robyn\\Jungle"
+    },
+    {
+      "path": "Posts/Robyn/LivingSituation.json",
+      "profile": "",
+      "filename": "Posts\\Robyn\\LivingSituation"
+    },
+    {
+      "path": "Posts/Robyn/Ocean.json",
+      "profile": "",
+      "filename": "Posts\\Robyn\\Ocean"
+    },
+    {
+      "path": "Posts/Robyn/Plague.json",
+      "profile": "",
+      "filename": "Posts\\Robyn\\Plague"
+    },
+    {
+      "path": "Posts/Robyn/Snow.json",
+      "profile": "",
+      "filename": "Posts\\Robyn\\Snow"
+    },
+    {
+      "path": "Posts/Robyn/Spread.json",
+      "profile": "",
+      "filename": "Posts\\Robyn\\Spread"
+    },
+    {
+      "path": "Posts/Robyn/SunkenSea.json",
+      "profile": "",
+      "filename": "Posts\\Robyn\\SunkenSea"
+    },
+    {
+      "path": "Posts/Robyn/Surface.json",
+      "profile": "",
+      "filename": "Posts\\Robyn\\Surface"
+    },
+    {
+      "path": "Posts/Robyn/WhiteLotus.json",
+      "profile": "",
+      "filename": "Posts\\Robyn\\WhiteLotus"
+    },
+    {
+      "path": "Posts/Robyn/WorldEvil.json",
+      "profile": "",
+      "filename": "Posts\\Robyn\\WorldEvil"
+    },
+    {
+      "path": "Posts/XB10/ArsenalStock.json",
+      "profile": "",
+      "filename": "Posts\\XB10\\ArsenalStock"
+    },
+    {
+      "path": "Posts/XboxGamer/PlaguedPC.json",
+      "profile": "",
+      "filename": "Posts\\XboxGamer\\PlaguedPC"
+    },
+    {
+      "path": "Posts/XboxGamer/StupidHelper.json",
+      "profile": "",
+      "filename": "Posts\\XboxGamer\\StupidHelper"
+    },
+    {
+      "path": "Posts/Yharim/Cheating.json",
+      "profile": "",
+      "filename": "Posts\\Yharim\\Cheating"
+    },
+    {
+      "path": "Posts/Yharim/GodMusic.json",
+      "profile": "",
+      "filename": "Posts\\Yharim\\GodMusic"
+    },
+    {
+      "path": "Posts/Yharim/JungleQuestion.json",
+      "profile": "",
+      "filename": "Posts\\Yharim\\JungleQuestion"
+    },
+    {
+      "path": "Posts/Yharim/MoreToxic.json",
+      "profile": "",
+      "filename": "Posts\\Yharim\\MoreToxic"
+    },
+    {
+      "path": "Posts/Yharim/PrideMonth.json",
+      "profile": "",
+      "filename": "Posts\\Yharim\\PrideMonth"
+    },
+    {
+      "path": "Posts/Yharim/Private.json",
+      "profile": "",
+      "filename": "Posts\\Yharim\\Private"
+    },
+    {
+      "path": "Posts/Yharim/Salty.json",
+      "profile": "",
+      "filename": "Posts\\Yharim\\Salty"
+    },
+    {
+      "path": "Posts/Yharim/ShitOn.json",
+      "profile": "",
+      "filename": "Posts\\Yharim\\ShitOn"
+    },
+    {
+      "path": "Posts/Yharim/spit.json",
+      "profile": "",
+      "filename": "Posts\\Yharim\\spit"
+    }
+  ],
+  "profiles": [
+    {
+      "path": "Profiles/Believers/Believer1.json",
+      "name": "Believers\\Believer1"
+    },
+    {
+      "path": "Profiles/Believers/Believer10.json",
+      "name": "Believers\\Believer10"
+    },
+    {
+      "path": "Profiles/Believers/Believer11.json",
+      "name": "Believers\\Believer11"
+    },
+    {
+      "path": "Profiles/Believers/Believer12.json",
+      "name": "Believers\\Believer12"
+    },
+    {
+      "path": "Profiles/Believers/Believer13.json",
+      "name": "Believers\\Believer13"
+    },
+    {
+      "path": "Profiles/Believers/Believer14.json",
+      "name": "Believers\\Believer14"
+    },
+    {
+      "path": "Profiles/Believers/Believer15.json",
+      "name": "Believers\\Believer15"
+    },
+    {
+      "path": "Profiles/Believers/Believer16.json",
+      "name": "Believers\\Believer16"
+    },
+    {
+      "path": "Profiles/Believers/Believer2.json",
+      "name": "Believers\\Believer2"
+    },
+    {
+      "path": "Profiles/Believers/Believer3.json",
+      "name": "Believers\\Believer3"
+    },
+    {
+      "path": "Profiles/Believers/Believer4.json",
+      "name": "Believers\\Believer4"
+    },
+    {
+      "path": "Profiles/Believers/Believer5.json",
+      "name": "Believers\\Believer5"
+    },
+    {
+      "path": "Profiles/Believers/Believer6.json",
+      "name": "Believers\\Believer6"
+    },
+    {
+      "path": "Profiles/Believers/Believer7.json",
+      "name": "Believers\\Believer7"
+    },
+    {
+      "path": "Profiles/Believers/Believer8.json",
+      "name": "Believers\\Believer8"
+    },
+    {
+      "path": "Profiles/Believers/Believer9.json",
+      "name": "Believers\\Believer9"
+    },
+    {
+      "path": "Profiles/Bluxunium.json",
+      "name": "Bluxunium"
+    },
+    {
+      "path": "Profiles/BoneGod.json",
+      "name": "BoneGod"
+    },
+    {
+      "path": "Profiles/CalamityMod.json",
+      "name": "CalamityMod"
+    },
+    {
+      "path": "Profiles/Crusaders/Crusader1.json",
+      "name": "Crusaders\\Crusader1"
+    },
+    {
+      "path": "Profiles/Crusaders/Crusader10.json",
+      "name": "Crusaders\\Crusader10"
+    },
+    {
+      "path": "Profiles/Crusaders/Crusader11.json",
+      "name": "Crusaders\\Crusader11"
+    },
+    {
+      "path": "Profiles/Crusaders/Crusader12.json",
+      "name": "Crusaders\\Crusader12"
+    },
+    {
+      "path": "Profiles/Crusaders/Crusader2.json",
+      "name": "Crusaders\\Crusader2"
+    },
+    {
+      "path": "Profiles/Crusaders/Crusader3.json",
+      "name": "Crusaders\\Crusader3"
+    },
+    {
+      "path": "Profiles/Crusaders/Crusader4.json",
+      "name": "Crusaders\\Crusader4"
+    },
+    {
+      "path": "Profiles/Crusaders/Crusader5.json",
+      "name": "Crusaders\\Crusader5"
+    },
+    {
+      "path": "Profiles/Crusaders/Crusader6.json",
+      "name": "Crusaders\\Crusader6"
+    },
+    {
+      "path": "Profiles/Crusaders/Crusader7.json",
+      "name": "Crusaders\\Crusader7"
+    },
+    {
+      "path": "Profiles/Crusaders/Crusader8.json",
+      "name": "Crusaders\\Crusader8"
+    },
+    {
+      "path": "Profiles/Crusaders/Crusader9.json",
+      "name": "Crusaders\\Crusader9"
+    },
+    {
+      "path": "Profiles/DailyHeartlandsNews.json",
+      "name": "DailyHeartlandsNews"
+    },
+    {
+      "path": "Profiles/EvilFanny.json",
+      "name": "EvilFanny"
+    },
+    {
+      "path": "Profiles/ExoBots/ExoBot1.json",
+      "name": "ExoBots\\ExoBot1"
+    },
+    {
+      "path": "Profiles/ExoBots/ExoBot10.json",
+      "name": "ExoBots\\ExoBot10"
+    },
+    {
+      "path": "Profiles/ExoBots/ExoBot11.json",
+      "name": "ExoBots\\ExoBot11"
+    },
+    {
+      "path": "Profiles/ExoBots/ExoBot12.json",
+      "name": "ExoBots\\ExoBot12"
+    },
+    {
+      "path": "Profiles/ExoBots/ExoBot13.json",
+      "name": "ExoBots\\ExoBot13"
+    },
+    {
+      "path": "Profiles/ExoBots/ExoBot14.json",
+      "name": "ExoBots\\ExoBot14"
+    },
+    {
+      "path": "Profiles/ExoBots/ExoBot15.json",
+      "name": "ExoBots\\ExoBot15"
+    },
+    {
+      "path": "Profiles/ExoBots/ExoBot16.json",
+      "name": "ExoBots\\ExoBot16"
+    },
+    {
+      "path": "Profiles/ExoBots/ExoBot17.json",
+      "name": "ExoBots\\ExoBot17"
+    },
+    {
+      "path": "Profiles/ExoBots/ExoBot18.json",
+      "name": "ExoBots\\ExoBot18"
+    },
+    {
+      "path": "Profiles/ExoBots/ExoBot19.json",
+      "name": "ExoBots\\ExoBot19"
+    },
+    {
+      "path": "Profiles/ExoBots/ExoBot2.json",
+      "name": "ExoBots\\ExoBot2"
+    },
+    {
+      "path": "Profiles/ExoBots/ExoBot20.json",
+      "name": "ExoBots\\ExoBot20"
+    },
+    {
+      "path": "Profiles/ExoBots/ExoBot21.json",
+      "name": "ExoBots\\ExoBot21"
+    },
+    {
+      "path": "Profiles/ExoBots/ExoBot22.json",
+      "name": "ExoBots\\ExoBot22"
+    },
+    {
+      "path": "Profiles/ExoBots/ExoBot3.json",
+      "name": "ExoBots\\ExoBot3"
+    },
+    {
+      "path": "Profiles/ExoBots/ExoBot4.json",
+      "name": "ExoBots\\ExoBot4"
+    },
+    {
+      "path": "Profiles/ExoBots/ExoBot5.json",
+      "name": "ExoBots\\ExoBot5"
+    },
+    {
+      "path": "Profiles/ExoBots/ExoBot6.json",
+      "name": "ExoBots\\ExoBot6"
+    },
+    {
+      "path": "Profiles/ExoBots/ExoBot7.json",
+      "name": "ExoBots\\ExoBot7"
+    },
+    {
+      "path": "Profiles/ExoBots/ExoBot8.json",
+      "name": "ExoBots\\ExoBot8"
+    },
+    {
+      "path": "Profiles/ExoBots/ExoBot9.json",
+      "name": "ExoBots\\ExoBot9"
+    },
+    {
+      "path": "Profiles/Fanny.json",
+      "name": "Fanny"
+    },
+    {
+      "path": "Profiles/Hypnos.json",
+      "name": "Hypnos"
+    },
+    {
+      "path": "Profiles/Ignalius.json",
+      "name": "Ignalius"
+    },
+    {
+      "path": "Profiles/MiracleBoy.json",
+      "name": "MiracleBoy"
+    },
+    {
+      "path": "Profiles/NotFabsol.json",
+      "name": "NotFabsol"
+    },
+    {
+      "path": "Profiles/Noxus.json",
+      "name": "Noxus"
+    },
+    {
+      "path": "Profiles/OldDuke.json",
+      "name": "OldDuke"
+    },
+    {
+      "path": "Profiles/PlayerHater.json",
+      "name": "PlayerHater"
+    },
+    {
+      "path": "Profiles/Renault.json",
+      "name": "Renault"
+    },
+    {
+      "path": "Profiles/Robyn.json",
+      "name": "Robyn"
+    },
+    {
+      "path": "Profiles/XB10.json",
+      "name": "XB10"
+    },
+    {
+      "path": "Profiles/XboxGamer.json",
+      "name": "XboxGamer"
+    },
+    {
+      "path": "Profiles/Yharim.json",
+      "name": "Yharim"
+    }
+  ],
+  "replies": {
+    "unique": [
+      {
+        "path": "Replies/UniqueReplies/Bluxunium/DoGResprite.json",
+        "name": "Bluxunium\\DoGResprite"
+      },
+      {
+        "path": "Replies/UniqueReplies/BoneGod/DoGResprite.json",
+        "name": "BoneGod\\DoGResprite"
+      },
+      {
+        "path": "Replies/UniqueReplies/Crusaders/Crusader11/WhatTheFuckDude.json",
+        "name": "Crusaders\\Crusader11\\WhatTheFuckDude"
+      },
+      {
+        "path": "Replies/UniqueReplies/EvilFanny/BabilHunting.json",
+        "name": "EvilFanny\\BabilHunting"
+      },
+      {
+        "path": "Replies/UniqueReplies/Hypnos/ChlorophyllExplanation.json",
+        "name": "Hypnos\\ChlorophyllExplanation"
+      },
+      {
+        "path": "Replies/UniqueReplies/OldDuke/OldDukeSpeaks.json",
+        "name": "OldDuke\\OldDukeSpeaks"
+      },
+      {
+        "path": "Replies/UniqueReplies/Yharim/PrideMonth/1.json",
+        "name": "Yharim\\PrideMonth\\1"
+      },
+      {
+        "path": "Replies/UniqueReplies/Yharim/PrideMonth/2.json",
+        "name": "Yharim\\PrideMonth\\2"
+      },
+      {
+        "path": "Replies/UniqueReplies/Yharim/PrideMonth/3.json",
+        "name": "Yharim\\PrideMonth\\3"
+      },
+      {
+        "path": "Replies/UniqueReplies/Yharim/Private.json",
+        "name": "Yharim\\Private"
+      }
+    ],
+    "generic": [
+      {
+        "path": "Replies/GenericReplies/Believers/DistortionPost.json",
+        "name": "Believers\\DistortionPost"
+      },
+      {
+        "path": "Replies/GenericReplies/Believers/NoxicPost.json",
+        "name": "Believers\\NoxicPost"
+      },
+      {
+        "path": "Replies/GenericReplies/Crusaders/WheresYharimSad.json",
+        "name": "Crusaders\\WheresYharimSad"
+      },
+      {
+        "path": "Replies/GenericReplies/Crusaders/YharimHotTake.json",
+        "name": "Crusaders\\YharimHotTake"
+      },
+      {
+        "path": "Replies/GenericReplies/Crusaders/YharimPost.json",
+        "name": "Crusaders\\YharimPost"
+      },
+      {
+        "path": "Replies/GenericReplies/Crusaders/YharimQueerBaiting.json",
+        "name": "Crusaders\\YharimQueerBaiting"
+      },
+      {
+        "path": "Replies/GenericReplies/ExoBots/Agreement.json",
+        "name": "ExoBots\\Agreement"
+      },
+      {
+        "path": "Replies/GenericReplies/ExoBots/AntiDraedon.json",
+        "name": "ExoBots\\AntiDraedon"
+      },
+      {
+        "path": "Replies/GenericReplies/ExoBots/DraedonTechHype.json",
+        "name": "ExoBots\\DraedonTechHype"
+      },
+      {
+        "path": "Replies/GenericReplies/ExoBots/PlagueDenial.json",
+        "name": "ExoBots\\PlagueDenial"
+      },
+      {
+        "path": "Replies/GenericReplies/ExoBots/Sympathy.json",
+        "name": "ExoBots\\Sympathy"
+      },
+      {
+        "path": "Replies/GenericReplies/Fanny/PositiveResponses.json",
+        "name": "Fanny\\PositiveResponses"
+      },
+      {
+        "path": "Replies/GenericReplies/XB10/ArsenalInvestment.json",
+        "name": "XB10\\ArsenalInvestment"
+      },
+      {
+        "path": "Replies/GenericReplies/Yharim/JungleDiscussion.json",
+        "name": "Yharim\\JungleDiscussion"
+      }
+    ]
+  },
+  "lastUpdated": "2025-07-27T07:09:51.905Z"
+}

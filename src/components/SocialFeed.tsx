@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  loadFileManifest,
+  loadJsonFile,
+  loadProfile as loadProfileFromManifest,
+  loadAllPosts,
+  loadUniqueRepliesForPost,
+  loadGenericRepliesForTags,
+  type FileManifest
+} from "@/lib/fileDiscovery";
+import { useAutoRefresh } from "@/lib/autoRefresh";
 
 const reactionTypes = [
   { name: "heart", icon: "/Assets/Icons/Heart.webp", label: "Like" },
@@ -8,235 +18,36 @@ const reactionTypes = [
   { name: "comments", icon: "/Assets/Icons/Comments.webp", label: "Comment" },
 ];
 
-// Helper function to load JSON files
-const loadJsonFile = async (path: string) => {
-  try {
-    const response = await fetch(path);
-    if (!response.ok) {
-      // Silently handle 404s since we're probing for files
-      if (response.status !== 404) {
-        console.warn(`Error loading ${path}: ${response.status} ${response.statusText}`);
-      }
-      return null;
-    }
-    return await response.json();
-  } catch (error) {
-    // Handle network errors more gracefully
-    if (error.message.includes("Failed to fetch")) {
-      console.warn(`File not found or network error: ${path}`);
-    } else {
-      console.error(`Error parsing JSON from ${path}:`, error);
-    }
-    return null;
-  }
+// Load profile by name (keeping for compatibility)
+const loadProfile = async (profileName: string, manifest?: FileManifest) => {
+  return await loadProfileFromManifest(profileName, manifest);
 };
 
-// Load profile by name
-const loadProfile = async (profileName: string) => {
-  // Handle both nested and flat profile structures\n  return await loadJsonFile(`/en-US/Profiles/${profileName}.json`);
-};
-
-// Load post by profile and filename
-const loadPost = async (profileName: string, filename: string) => {
-  return await loadJsonFile(`/en-US/Posts/${profileName}/${filename}.json`);
-};
-
-// Comprehensive list of all known post files with their exact paths
-const discoverAllPosts = async () => {
-  const allPosts = [];
-
-  // Define all known post paths based on the actual directory structure from project listing
-  const knownPostPaths = [
-    // Believers posts (nested structure) - confirmed to exist
-    { profile: "Believers/Believer1", file: "FalseProphet" },
-    { profile: "Believers/Believer10", file: "Indoctrination" },
-    { profile: "Believers/Believer11", file: "FalseFlag" },
-    { profile: "Believers/Believer12", file: "Martyr" },
-    { profile: "Believers/Believer13", file: "NoxicRogue" },
-    { profile: "Believers/Believer14", file: "NoxicMechanic" },
-    { profile: "Believers/Believer15", file: "Clentaminator" },
-    { profile: "Believers/Believer16", file: "OldDuke" },
-    { profile: "Believers/Believer2", file: "Yharim" },
-    { profile: "Believers/Believer3", file: "SlimeGod" },
-    { profile: "Believers/Believer4", file: "BrimstoneElemental" },
-    { profile: "Believers/Believer5", file: "Draedon" },
-    { profile: "Believers/Believer6", file: "EidolonWyrms" },
-    { profile: "Believers/Believer7", file: "Signus" },
-    { profile: "Believers/Believer8", file: "Crusade" },
-    { profile: "Believers/Believer9", file: "Plaguebringer" },
-
-    // CalamityMod posts
-    { profile: "CalamityMod", file: "YharonSky" },
-
-    // Crusaders posts (nested structure)
-    { profile: "Crusaders/Crusader1", file: "WheresYharim" },
-
-    // DailyHeartlandsNews posts - all confirmed files
-    { profile: "DailyHeartlandsNews", file: "AerieTheories" },
-    { profile: "DailyHeartlandsNews", file: "BrimstoneCragsDiscovery" },
-    { profile: "DailyHeartlandsNews", file: "DiggerShowcase" },
-    { profile: "DailyHeartlandsNews", file: "DoGResprite" },
-    { profile: "DailyHeartlandsNews", file: "ExoShowcase" },
-    { profile: "DailyHeartlandsNews", file: "GauntletHorror" },
-    { profile: "DailyHeartlandsNews", file: "HeroicDamageControversy" },
-    { profile: "DailyHeartlandsNews", file: "ManaRevolution" },
-    { profile: "DailyHeartlandsNews", file: "MurasamaPrototypeFootage" },
-    { profile: "DailyHeartlandsNews", file: "NautilusAppears" },
-    { profile: "DailyHeartlandsNews", file: "OldDukeSpeaks" },
-    { profile: "DailyHeartlandsNews", file: "PerennialGroveDiscovery" },
-    { profile: "DailyHeartlandsNews", file: "PinkCrystalDiscovery" },
-    { profile: "DailyHeartlandsNews", file: "ProfanedBiomeEmergence" },
-    { profile: "DailyHeartlandsNews", file: "SkyKingdomRelics" },
-    { profile: "DailyHeartlandsNews", file: "StatisWarning" },
-    { profile: "DailyHeartlandsNews", file: "YharmyMobilization" },
-
-    // EvilFanny posts
-    { profile: "EvilFanny", file: "HeavyMetal" },
-
-    // Fanny posts
-    { profile: "Fanny", file: "BabilHunting" },
-    { profile: "Fanny", file: "FantasticDay" },
-    { profile: "Fanny", file: "GoodMorning" },
-    { profile: "Fanny", file: "Update" },
-
-    // Ignalius posts
-    { profile: "Ignalius", file: "RavagerCallout" },
-
-    // MiracleBoy posts
-    { profile: "MiracleBoy", file: "Cartwheel" },
-    { profile: "MiracleBoy", file: "Dog" },
-
-    // NotFabsol posts
-    { profile: "NotFabsol", file: "Apology" },
-    { profile: "NotFabsol", file: "BurnAtTheStake" },
-    { profile: "NotFabsol", file: "ChildSoldiers" },
-    { profile: "NotFabsol", file: "Lihzahrdphobia" },
-    { profile: "NotFabsol", file: "PlagueDenial" },
-
-    // Noxus posts
-    { profile: "Noxus", file: "Xeroc" },
-
-    // OldDuke posts
-    { profile: "OldDuke", file: "YouDontExist" },
-
-    // PlayerHater posts
-    { profile: "PlayerHater", file: "BadMorning" },
-
-    // Renault posts
-    { profile: "Renault", file: "Advert1" },
-
-    // Robyn posts - all confirmed files
-    { profile: "Robyn", file: "Brimstone" },
-    { profile: "Robyn", file: "Desert" },
-    { profile: "Robyn", file: "Dreams" },
-    { profile: "Robyn", file: "FunFact1" },
-    { profile: "Robyn", file: "FunFact2" },
-    { profile: "Robyn", file: "Hell" },
-    { profile: "Robyn", file: "Jungle" },
-    { profile: "Robyn", file: "LivingSituation" },
-    { profile: "Robyn", file: "Ocean" },
-    { profile: "Robyn", file: "Plague" },
-    { profile: "Robyn", file: "Snow" },
-    { profile: "Robyn", file: "Spread" },
-    { profile: "Robyn", file: "SunkenSea" },
-    { profile: "Robyn", file: "Surface" },
-    { profile: "Robyn", file: "WhiteLotus" },
-    { profile: "Robyn", file: "WorldEvil" },
-
-    // XB10 posts
-    { profile: "XB10", file: "ArsenalStock" },
-
-    // XboxGamer posts
-    { profile: "XboxGamer", file: "PlaguedPC" },
-    { profile: "XboxGamer", file: "StupidHelper" },
-
-    // Yharim posts
-    { profile: "Yharim", file: "Cheating" },
-    { profile: "Yharim", file: "GodMusic" },
-    { profile: "Yharim", file: "JungleQuestion" },
-    { profile: "Yharim", file: "MoreToxic" },
-    { profile: "Yharim", file: "PrideMonth" },
-    { profile: "Yharim", file: "Private" },
-    { profile: "Yharim", file: "Salty" },
-    { profile: "Yharim", file: "ShitOn" },
-    { profile: "Yharim", file: "spit" },
-  ];
-
-  // Load each post with proper path handling
-  for (const { profile, file } of knownPostPaths) {
-    const post = await loadJsonFile(`/en-US/Posts/${profile}/${file}.json`);
-    if (post && !allPosts.some((p) => p.Name === post.Name)) {
-      allPosts.push(post);
-    }
+// Dynamic post discovery using manifest
+const discoverAllPosts = async (manifest?: FileManifest) => {
+  if (manifest) {
+    console.log(`Loading ${manifest.posts.length} posts from manifest...`);
+    return await loadAllPosts(manifest);
   }
 
-  console.log(
-    `Final discovered posts:`,
-    allPosts.map((p) => p.Name),
-  );
-  return allPosts;
+  console.warn('No manifest available, posts will not be loaded dynamically');
+  return [];
 };
 
-// Dynamically discover all unique reply files and create a mapping
-const discoverUniqueReplies = async () => {
-  const replyMapping = new Map();
-
-  // Known unique reply files based on actual directory structure
-  const knownUniqueReplies = [
-    { path: "/en-US/Replies/UniqueReplies/Bluxunium/DoGResprite.json" },
-    { path: "/en-US/Replies/UniqueReplies/BoneGod/DoGResprite.json" },
-    { path: "/en-US/Replies/UniqueReplies/EvilFanny/BabilHunting.json" },
-    { path: "/en-US/Replies/UniqueReplies/OldDuke/OldDukeSpeaks.json" },
-    { path: "/en-US/Replies/UniqueReplies/Hypnos/ChlorophyllExplanation.json" },
-    { path: "/en-US/Replies/UniqueReplies/Yharim/Private.json" },
-    { path: "/en-US/Replies/UniqueReplies/Crusaders/Crusader11/WhatTheFuckDude.json" },
-    { path: "/en-US/Replies/UniqueReplies/Yharim/PrideMonth/1.json" },
-    { path: "/en-US/Replies/UniqueReplies/Yharim/PrideMonth/2.json" },
-    { path: "/en-US/Replies/UniqueReplies/Yharim/PrideMonth/3.json" },
-  ];
-
-  for (const { path } of knownUniqueReplies) {
-    const reply = await loadJsonFile(path);
-    if (reply && reply.PostName) {
-      if (!replyMapping.has(reply.PostName)) {
-        replyMapping.set(reply.PostName, []);
-      }
-      replyMapping.get(reply.PostName).push(reply);
-    }
+// Load unique replies for a post using the manifest
+const loadUniqueReplies = async (postName: string, manifest?: FileManifest) => {
+  if (manifest) {
+    return await loadUniqueRepliesForPost(postName, manifest);
   }
-
-  return replyMapping;
+  return [];
 };
 
-// Load unique replies for a post using the discovered mapping
-const loadUniqueReplies = async (postName: string, replyMapping: Map<string, any[]>) => {
-  return replyMapping.get(postName) || [];
-};
-
-// Load generic replies that match post tags
-const loadGenericReplies = async (tags: string[]) => {
-  const profiles = ["Fanny", "XB10", "Yharim", "Draedon", "Hypnos"];
-  const replyFileMap = {
-    Fanny: ["PositiveResponses"],
-    XB10: ["ArsenalInvestment"],
-    Yharim: ["JungleDiscussion"],
-    Draedon: [],
-    Hypnos: [],
-  };
-
-  const matchingGroups = [];
-  for (const profile of profiles) {
-    const replyFiles = replyFileMap[profile] || [];
-    for (const replyFile of replyFiles) {
-      const group = await loadJsonFile(
-        `/en-US/Replies/GenericReplies/${profile}/${replyFile}.json`,
-      );
-      if (group && group.Tags.some((tag: string) => tags.includes(tag))) {
-        matchingGroups.push(group);
-      }
-    }
+// Load generic replies that match post tags using the manifest
+const loadGenericReplies = async (tags: string[], manifest?: FileManifest) => {
+  if (manifest) {
+    return await loadGenericRepliesForTags(tags, manifest);
   }
-  return matchingGroups;
+  return [];
 };
 
 // Get profile picture path dynamically based on available assets
@@ -295,6 +106,7 @@ const getProfilePicture = (profileName: string, profileData?: any) => {
 export default function SocialFeed() {
   const [allPosts, setAllPosts] = useState(null);
   const [profiles, setProfiles] = useState({});
+  const [manifest, setManifest] = useState<FileManifest | null>(null);
   const [expandedComments, setExpandedComments] = useState(new Set());
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
@@ -302,17 +114,91 @@ export default function SocialFeed() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [lastManifestCheck, setLastManifestCheck] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Manual refresh function
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      const fileManifest = await loadFileManifest();
+      if (fileManifest) {
+        setLastManifestCheck(fileManifest.lastUpdated);
+        console.log('Manual refresh completed');
+      }
+    } catch (error) {
+      console.error('Manual refresh failed:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Auto-refresh setup
+  useAutoRefresh((updatedManifest) => {
+    if (updatedManifest.lastUpdated !== lastManifestCheck) {
+      setLastManifestCheck(updatedManifest.lastUpdated);
+    }
+  }, { intervalMs: 10000 });
+
+  // Initialize page and search from URL parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const pageParam = urlParams.get('page');
+    const searchParam = urlParams.get('search');
+
+    if (pageParam) {
+      const pageNum = parseInt(pageParam);
+      if (pageNum > 0) {
+        setCurrentPage(pageNum);
+      }
+    }
+
+    if (searchParam) {
+      setSearchQuery(searchParam);
+    }
+  }, []);
+
+  // Update URL whenever page or search changes
+  const updateUrl = (page: number, search: string) => {
+    const url = new URL(window.location.href);
+
+    if (page > 1) {
+      url.searchParams.set('page', page.toString());
+    } else {
+      url.searchParams.delete('page');
+    }
+
+    if (search.trim()) {
+      url.searchParams.set('search', search);
+    } else {
+      url.searchParams.delete('search');
+    }
+
+    window.history.replaceState({}, '', url);
+  };
 
   const POSTS_PER_PAGE = 10;
 
+  // Load manifest and data
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Discover unique replies mapping first
-        const replyMapping = await discoverUniqueReplies();
+        // Load the file manifest
+        const fileManifest = await loadFileManifest();
 
-        // Discover and load all posts dynamically
-        const allPosts = await discoverAllPosts();
+        if (fileManifest) {
+          setManifest(fileManifest);
+          console.log('Loaded manifest:', fileManifest);
+
+          // Check if manifest has been updated
+          if (lastManifestCheck && lastManifestCheck !== fileManifest.lastUpdated) {
+            console.log('Manifest updated, refreshing data...');
+          }
+          setLastManifestCheck(fileManifest.lastUpdated);
+        }
+
+        // Discover and load all posts dynamically using manifest
+        const allPosts = await discoverAllPosts(fileManifest);
         console.log("Discovered posts:", allPosts.length, allPosts);
 
         const loadedPosts = [];
@@ -322,18 +208,19 @@ export default function SocialFeed() {
           if (post) {
             console.log("Processing post:", post.Name);
             // Load the poster's profile
-            const profile = await loadProfile(post.Poster);
+            const profile = await loadProfile(post.Poster, fileManifest);
             if (profile) {
               loadedProfiles[post.Poster] = profile;
             }
 
-            // Load unique replies for this post using the mapping
-            const uniqueReplies = await loadUniqueReplies(post.Name, replyMapping);
+            // Load unique replies for this post using the manifest
+            const uniqueReplies = await loadUniqueReplies(post.Name, fileManifest);
             const comments = [];
 
             // Add unique replies
-            for (const reply of uniqueReplies) {
-              const replyProfile = await loadProfile(reply.Poster);
+            for (let i = 0; i < uniqueReplies.length; i++) {
+              const reply = uniqueReplies[i];
+              const replyProfile = await loadProfile(reply.Poster, fileManifest);
               if (replyProfile) {
                 loadedProfiles[reply.Poster] = replyProfile;
               }
@@ -343,7 +230,7 @@ export default function SocialFeed() {
               const accountName = replyProfile?.AccountName || reply.Poster.toLowerCase();
 
               comments.push({
-                id: `${post.Name}-${reply.Poster}`,
+                id: `${post.Name}-${reply.Poster}-${i}`, // Add index to make IDs unique
                 username: displayName,
                 handle: `@${accountName}`,
                 content: reply.Body,
@@ -417,7 +304,24 @@ export default function SocialFeed() {
     };
 
     loadData();
-  }, []);
+  }, [lastManifestCheck]); // Re-run when manifest is updated
+
+  // Periodically check for manifest updates
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const fileManifest = await loadFileManifest();
+        if (fileManifest && fileManifest.lastUpdated !== lastManifestCheck) {
+          console.log('Manifest updated, will refresh data on next render');
+          setLastManifestCheck(fileManifest.lastUpdated);
+        }
+      } catch (error) {
+        console.warn('Failed to check for manifest updates:', error);
+      }
+    }, 5000); // Check every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [lastManifestCheck]);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -449,6 +353,7 @@ export default function SocialFeed() {
     const totalPages = getTotalPages();
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
+      updateUrl(page, searchQuery);
     }
   };
 
@@ -634,32 +539,61 @@ export default function SocialFeed() {
         {/* Chat Feed */}
         <div className="flex-1 pl-6 pt-0 pb-0">
           {/* Search Bar */}
-          <div className="mb-4 pt-4">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search posts, users, or replies..."
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setCurrentPage(1); // Reset to first page when searching
-                }}
-                className="w-full bg-slate-700 text-white placeholder-gray-400 rounded-lg px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-slate-600 transition-colors"
-              />
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+          <div className="mb-4 pr-4 pt-4">
+            <div className="flex gap-3">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  placeholder="Search posts, users, or replies..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    const newSearch = e.target.value;
+                    setSearchQuery(newSearch);
+                    setCurrentPage(1); // Reset to first page when searching
+                    updateUrl(1, newSearch);
+                  }}
+                  className="w-full bg-slate-700 text-white placeholder-gray-400 rounded-lg px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-slate-600 transition-colors"
+                />
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
               </div>
+              <button
+                onClick={handleManualRefresh}
+                disabled={isRefreshing}
+                className={`px-4 py-3 rounded-lg transition-colors flex items-center gap-2 ${
+                  isRefreshing
+                    ? 'bg-slate-600 text-gray-400 cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
+                title="Refresh posts and data"
+              >
+                <svg
+                  className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                {isRefreshing ? 'Refreshing...' : 'Refresh'}
+              </button>
             </div>
             {searchQuery && (
               <div className="mt-2 text-sm text-gray-400">
                 Found {getFilteredPosts().length} result{getFilteredPosts().length !== 1 ? 's' : ''} for "{searchQuery}"
               </div>
             )}
+            {manifest && (
+              <div className="mt-2 text-xs text-gray-500">
+                Last updated: {new Date(manifest.lastUpdated).toLocaleString()} • {manifest.posts.length} posts • {manifest.profiles.length} profiles
+              </div>
+            )}
           </div>
 
-          <div className="h-[634px] overflow-y-auto mr-[10px]" style={{padding: '0 12.5px 0 0'}}>
+          <div className="h-[634px] overflow-y-auto mr-[10px]" style={{padding: '0 12.5px 20px 0'}}>
             {searchQuery && getFilteredPosts().length === 0 ? (
               <div className="flex flex-col items-center justify-center h-64 text-gray-400">
                 <svg className="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -668,7 +602,11 @@ export default function SocialFeed() {
                 <h3 className="text-lg font-medium mb-2">No results found</h3>
                 <p className="text-center">No posts match your search for "{searchQuery}"</p>
                 <button
-                  onClick={() => setSearchQuery("")}
+                  onClick={() => {
+                    setSearchQuery("");
+                    setCurrentPage(1);
+                    updateUrl(1, "");
+                  }}
                   className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   Clear search
@@ -856,7 +794,7 @@ export default function SocialFeed() {
 
             {/* Pagination Controls */}
             {allPosts && allPosts.length > POSTS_PER_PAGE && (
-              <div className="flex flex-col items-center py-2 space-y-2">
+              <div className="flex flex-col items-center pt-1 pb-2 space-y-1">
                 <div className="flex items-center gap-2 bg-slate-800 rounded-lg p-3">
                   {/* First Page */}
                   <div
