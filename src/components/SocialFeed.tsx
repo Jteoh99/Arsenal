@@ -11,6 +11,9 @@ import {
   type FileManifest
 } from "@/lib/fileDiscovery";
 import { useAutoRefresh } from "@/lib/autoRefresh";
+import { MentionText } from "@/lib/mentions";
+import { getImageSources, getVideoSources, getPrimaryImageSrc } from "@/lib/mediaUtils";
+import { MultiFormatImage } from "@/components/ui/MultiFormatImage";
 
 const reactionTypes = [
   { name: "heart", icon: "/Assets/Icons/Heart.webp", label: "Like" },
@@ -121,10 +124,23 @@ export default function SocialFeed() {
   const handleManualRefresh = async () => {
     setIsRefreshing(true);
     try {
-      const fileManifest = await loadFileManifest();
+      console.log('Starting manual refresh...');
+
+      // Force reload the manifest with cache busting
+      const fileManifest = await loadFileManifest(true);
+
       if (fileManifest) {
-        setLastManifestCheck(fileManifest.lastUpdated);
-        console.log('Manual refresh completed');
+        // Clear existing data first
+        setAllPosts(null);
+        setProfiles({});
+
+        // Update manifest
+        setManifest(fileManifest);
+        setLastManifestCheck(fileManifest.lastUpdated + '-manual-' + Date.now());
+
+        console.log('Manual refresh completed - data will reload');
+      } else {
+        console.warn('Failed to load manifest during manual refresh');
       }
     } catch (error) {
       console.error('Manual refresh failed:', error);
@@ -281,6 +297,7 @@ export default function SocialFeed() {
               priority: post.Priority || 1,
               tags: post.Tags || [],
               image: post.Image || null,
+              video: post.Video || null,
             });
           }
         }
@@ -448,6 +465,87 @@ export default function SocialFeed() {
     }
   };
 
+  const handleMentionClick = async (username: string) => {
+    try {
+      // Try to find the profile in already loaded profiles first
+      let profileData = profiles[username];
+
+      // If not found, try to load it dynamically
+      if (!profileData) {
+        profileData = await loadProfile(username, manifest);
+      }
+
+      if (profileData) {
+        // Open profile modal with the mentioned user's data
+        setSelectedProfile({
+          username: profileData.DisplayName || profileData.Name || username,
+          poster: username,
+          avatar: getProfilePicture(username, profileData),
+          handle: `@${profileData.AccountName || username.toLowerCase()}`,
+        });
+      } else {
+        // If profile not found, show a generic profile
+        setSelectedProfile({
+          username: username,
+          poster: username,
+          avatar: getProfilePicture(username),
+          handle: `@${username.toLowerCase()}`,
+        });
+      }
+    } catch (error) {
+      console.error("Error loading mentioned profile:", error);
+      // Fallback to generic profile
+      setSelectedProfile({
+        username: username,
+        poster: username,
+        avatar: getProfilePicture(username),
+        handle: `@${username.toLowerCase()}`,
+      });
+    }
+  };
+
+  const handleCommentProfileClick = async (comment: any) => {
+    try {
+      // Extract the actual poster name from the comment
+      const posterName = comment.handle.replace('@', '');
+
+      // Try to find the profile in already loaded profiles first
+      let profileData = profiles[posterName];
+
+      // If not found, try to load it dynamically
+      if (!profileData) {
+        profileData = await loadProfile(posterName, manifest);
+      }
+
+      if (profileData) {
+        // Open profile modal with the full profile data
+        setSelectedProfile({
+          username: profileData.DisplayName || profileData.Name || comment.username,
+          poster: posterName,
+          avatar: getProfilePicture(posterName, profileData),
+          handle: `@${profileData.AccountName || posterName.toLowerCase()}`,
+        });
+      } else {
+        // If profile not found, show the comment data as fallback
+        setSelectedProfile({
+          username: comment.username,
+          poster: posterName,
+          avatar: comment.avatar,
+          handle: comment.handle,
+        });
+      }
+    } catch (error) {
+      console.error("Error loading comment profile:", error);
+      // Fallback to comment data
+      setSelectedProfile({
+        username: comment.username,
+        poster: comment.handle.replace('@', ''),
+        avatar: comment.avatar,
+        handle: comment.handle,
+      });
+    }
+  };
+
   return (
     <div className="h-screen bg-slate-800 text-white flex relative overflow-hidden">
       {/* Toggle Button */}
@@ -552,13 +650,36 @@ export default function SocialFeed() {
                     setCurrentPage(1); // Reset to first page when searching
                     updateUrl(1, newSearch);
                   }}
-                  className="w-full bg-slate-700 text-white placeholder-gray-400 rounded-lg px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-slate-600 transition-colors"
+                  className={`w-full bg-slate-700 text-white placeholder-gray-400 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-slate-600 transition-colors ${
+                    searchQuery ? 'pr-20' : 'pr-10'
+                  }`}
                 />
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
+                {searchQuery ? (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
+                    <button
+                      onClick={() => {
+                        setSearchQuery("");
+                        setCurrentPage(1);
+                        updateUrl(1, "");
+                      }}
+                      className="p-1 text-gray-400 hover:text-white transition-colors"
+                      title="Clear search"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                ) : (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                )}
               </div>
               <button
                 onClick={handleManualRefresh}
@@ -589,6 +710,7 @@ export default function SocialFeed() {
             {manifest && (
               <div className="mt-2 text-xs text-gray-500">
                 Last updated: {new Date(manifest.lastUpdated).toLocaleString()} • {manifest.posts.length} posts • {manifest.profiles.length} profiles
+                {isRefreshing && <span className="text-blue-400 ml-2">• Refreshing...</span>}
               </div>
             )}
           </div>
@@ -653,22 +775,50 @@ export default function SocialFeed() {
                           </span>
                         </div>
                         <div className="bg-slate-700 rounded-lg p-4 mb-3">
-                          <p className="text-gray-100">{post.content}</p>
+                          <p className="text-gray-100">
+                            <MentionText
+                              text={post.content}
+                              onMentionClick={handleMentionClick}
+                            />
+                          </p>
                           {/* Display image if available */}
                           {post.image && (
-                            <img
-                              src={`/Assets/Images/${post.image}.png`}
-                              alt="Post image"
-                              className="mt-3 rounded-lg max-w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
-                              onClick={() =>
-                                setSelectedImage(
-                                  `/Assets/Images/${post.image}.png`,
-                                )
-                              }
-                              onError={(e) => {
-                                e.target.style.display = "none";
-                              }}
-                            />
+                            <div className="mt-3">
+                              <MultiFormatImage
+                                filename={post.image}
+                                alt="Post image"
+                                className="rounded-lg max-w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
+                                onClick={() => {
+                                  // Use primary image source for modal
+                                  const primarySrc = getPrimaryImageSrc(post.image);
+                                  setSelectedImage(primarySrc);
+                                }}
+                              />
+                            </div>
+                          )}
+                          {/* Display video if available */}
+                          {post.video && (
+                            <div className="mt-3">
+                              <video
+                                className="rounded-lg max-w-full h-auto w-full bg-black"
+                                controls
+                                preload="metadata"
+                                controlsList="nodownload"
+                                onError={(e) => {
+                                  console.warn(`Failed to load video: ${post.video}`);
+                                  e.target.parentElement.style.display = "none";
+                                }}
+                              >
+                                {getVideoSources(post.video).map((source, index) => (
+                                  <source
+                                    key={index}
+                                    src={source.src}
+                                    type={source.type}
+                                  />
+                                ))}
+                                Your browser does not support the video tag.
+                              </video>
+                            </div>
                           )}
                         </div>
                         <div className="flex gap-6">
@@ -723,7 +873,10 @@ export default function SocialFeed() {
                                       key={comment.id}
                                       className="flex items-start gap-3"
                                     >
-                                      <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                                      <div
+                                        className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all"
+                                        onClick={() => handleCommentProfileClick(comment)}
+                                      >
                                         <img
                                           src={comment.avatar}
                                           alt={`${comment.username} avatar`}
@@ -732,7 +885,10 @@ export default function SocialFeed() {
                                       </div>
                                       <div className="flex-1">
                                         <div className="flex items-center gap-2 mb-1">
-                                          <span className="font-semibold text-white text-sm">
+                                          <span
+                                            className="font-semibold text-white text-sm cursor-pointer hover:text-blue-400 transition-colors"
+                                            onClick={() => handleCommentProfileClick(comment)}
+                                          >
                                             {comment.username}
                                           </span>
                                           <span className="text-gray-400 text-xs">
@@ -740,7 +896,10 @@ export default function SocialFeed() {
                                           </span>
                                         </div>
                                         <p className="text-gray-200 text-sm mb-2">
-                                          {comment.content}
+                                          <MentionText
+                                            text={comment.content}
+                                            onMentionClick={handleMentionClick}
+                                          />
                                         </p>
                                         <div className="flex gap-3">
                                           {comment.reactions.map(

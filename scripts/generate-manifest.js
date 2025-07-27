@@ -48,14 +48,14 @@ async function generateFileManifest() {
   // Discover all posts
   const postPaths = await scanDirectory(join(basePath, 'Posts'));
   const posts = postPaths.map(path => {
-    const relativePath = relative(basePath, path);
+    const relativePath = relative(basePath, path).replace(/\\/g, '/'); // Normalize first
     const parts = relativePath.split('/');
     // Remove 'Posts' and '.json' to get profile and filename
     const profile = parts.slice(1, -1).join('/'); // Everything between Posts and filename
     const filename = parts[parts.length - 1].replace('.json', '');
-    
+
     return {
-      path: relativePath.replace(/\\/g, '/'), // Normalize path separators
+      path: relativePath,
       profile,
       filename
     };
@@ -64,11 +64,11 @@ async function generateFileManifest() {
   // Discover all profiles
   const profilePaths = await scanDirectory(join(basePath, 'Profiles'));
   const profiles = profilePaths.map(path => {
-    const relativePath = relative(basePath, path);
-    const name = relativePath.replace('Profiles/', '').replace('Profiles\\', '').replace('.json', '');
-    
+    const relativePath = relative(basePath, path).replace(/\\/g, '/'); // Normalize first
+    const name = relativePath.replace('Profiles/', '').replace('.json', '');
+
     return {
-      path: relativePath.replace(/\\/g, '/'), // Normalize path separators
+      path: relativePath,
       name
     };
   });
@@ -76,14 +76,13 @@ async function generateFileManifest() {
   // Discover unique replies
   const uniqueReplyPaths = await scanDirectory(join(basePath, 'Replies', 'UniqueReplies'));
   const uniqueReplies = uniqueReplyPaths.map(path => {
-    const relativePath = relative(basePath, path);
+    const relativePath = relative(basePath, path).replace(/\\/g, '/'); // Normalize first
     const name = relativePath
       .replace('Replies/UniqueReplies/', '')
-      .replace('Replies\\UniqueReplies\\', '')
       .replace('.json', '');
-    
+
     return {
-      path: relativePath.replace(/\\/g, '/'), // Normalize path separators
+      path: relativePath,
       name
     };
   });
@@ -91,14 +90,13 @@ async function generateFileManifest() {
   // Discover generic replies
   const genericReplyPaths = await scanDirectory(join(basePath, 'Replies', 'GenericReplies'));
   const genericReplies = genericReplyPaths.map(path => {
-    const relativePath = relative(basePath, path);
+    const relativePath = relative(basePath, path).replace(/\\/g, '/'); // Normalize first
     const name = relativePath
       .replace('Replies/GenericReplies/', '')
-      .replace('Replies\\GenericReplies\\', '')
       .replace('.json', '');
-    
+
     return {
-      path: relativePath.replace(/\\/g, '/'), // Normalize path separators
+      path: relativePath,
       name
     };
   });
